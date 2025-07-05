@@ -8,10 +8,10 @@ pipeline {
     }
 
     stages {
-        stage('ch dir to react-app') {
+        stage('change dir to react-app') {
             steps {
                 dir('react-app'){
-                    sh pwd
+                    sh 'pwd'
                 }
             }
         }
