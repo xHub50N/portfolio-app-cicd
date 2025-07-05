@@ -23,7 +23,6 @@ pipeline {
                                            usernameVariable: 'DOCKERHUB_CREDENTIALS_USR', 
                                            passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW')]) {
                                 dir("react-app"){
-                                    sh 'ls -la'
                                     sh """
                                         echo "${DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS_USR}" --password-stdin
                                         docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
@@ -33,6 +32,16 @@ pipeline {
                     }
                 }
             }
+        }
+
+        steps
+        script {
+            dir("react-app"){
+                sh """
+                   docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
+                   docker run -p 3000:3000 -d ${DOCKER_IMAGE}:${DOCKER_TAG}
+                """
+                }
         }
 
         stage('Post-build') {
