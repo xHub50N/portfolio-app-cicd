@@ -8,13 +8,6 @@ pipeline {
     }
 
     stages {
-        stage('change dir to react-app') {
-            steps {
-                dir('react-app'){
-                    sh 'pwd'
-                }
-            }
-        }
         stage('Building and pushing container image') {
             agent any
             // when {
@@ -32,6 +25,7 @@ pipeline {
                         
                         sh """
                             echo "${DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS_USR}" --password-stdin
+                            cd react-app
                             docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
                             docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
                         """
