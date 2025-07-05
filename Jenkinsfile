@@ -1,5 +1,5 @@
 pipeline {
-    agent none 
+    agent any 
 
     environment {
         DOCKER_IMAGE = "registry.hub.docker.com/xhub50n/portfolio-app"
