@@ -1,0 +1,38 @@
+---
+- name: Tworzenie użytkownika ansible z SSH i sudo
+  hosts: all
+  become: true
+
+  vars:
+    new_user: ansible
+    ssh_key_path: id_rsa.pub
+
+  tasks:
+    - name: Tworzenie użytkownika
+      ansible.builtin.user:
+        name: "{{ new_user }}"
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+        state: present
+        create_home: yes
+
+    - name: Tworzenie katalogu .ssh
+      ansible.builtin.file:
+        path: "/home/{{ new_user }}/.ssh"
+        state: directory
+        mode: "0700"
+        owner: "{{ new_user }}"
+        group: "{{ new_user }}"
+
+    - name: Wstaw klucz publiczny do authorized_keys
+      ansible.posix.authorized_key:
+        user: "{{ new_user }}"
+        state: present
+        key: "{{ lookup('file', ssh_key_path) }}"
+
+    - name: Upewnij się, że użytkownik należy do grupy sudo
+      ansible.builtin.user:
+        name: "{{ new_user }}"
+        groups: sudo
+        append: yes

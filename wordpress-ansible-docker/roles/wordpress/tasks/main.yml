@@ -1,0 +1,14 @@
+- name: Create WordPress directory
+  file:
+    path: /opt/wordpress
+    state: directory
+
+- name: Copy docker-compose.yml
+  copy:
+    src: docker-compose.yml
+    dest: /opt/wordpress/docker-compose.yml
+
+- name: Start WordPress stack
+  command: docker-compose up -d
+  args:
+    chdir: /opt/wordpress

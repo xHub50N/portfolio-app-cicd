@@ -1,0 +1,31 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_US
+  keyboard:
+    layout: de
+  ssh:
+    install-server: true
+    allow-pw: true
+    disable_root: true
+    ssh_quiet_keygen: true
+    allow_public_ssh_keys: true
+  packages:
+    - qemu-guest-agent
+    - sudo
+  storage:
+    layout:
+      name: direct
+    swap:
+      size: 0
+  user-data:
+    package_upgrade: false
+    timezone: Europe/Warsaw
+    users:
+      - name: hubert
+        groups: [adm, sudo]
+        lock-passwd: false
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        shell: /bin/bash
+        ssh_authorized_keys:
+           - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCl3qSFMUjPLFD4IQcxMsqQGcD0O00TDVKYs6b1PjsGXCojBXBcjKwbuhAO/qgIkaas1fL5IHmt9Zx9S8suSA0frqzPit1qiSgkDbmScq4i2vERO5qJ9W52zzRTjaF9JDWGws4RRjh0LKDj0wyOkbNBNkq3AS9S3U/nhonVrW6LTL567Ev1TYAui/kVPoCB8uYoNxEUDlFOHr3CFUhkLj/91VdPBAABLbWahWsXptKVhOL4CZ5uwmSfczzK3lLmmfVcq5IhkbRa6nDUKUEgnkFDHx8eO53VIkc43tJm/tJMQ5etyxeJNPFNb/a4zWVZlCp6mD+63NzKaGknChvy4hBx root@debian-bojda
