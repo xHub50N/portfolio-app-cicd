@@ -2,7 +2,7 @@ pipeline {
     agent any 
 
     environment {
-        DOCKER_IMAGE = "registry.hub.docker.com/xhub50n/portfolio-app"
+        DOCKER_IMAGE = "xhub50n/portfolio-app"
         DOCKER_TAG = 'latest'
         DOCKER_REGISTRY = 'registry.hub.docker.com' 
     }
