@@ -59,17 +59,6 @@ pipeline {
                 }
             }
         }
-        steps
-        {
-        script {
-                sh """
-                   ssh terraform@192.168.0.52
-                   docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
-                   docker run -p 3000:3000 -d ${DOCKER_IMAGE}:${DOCKER_TAG}
-                """
-        }
-        }
-
         stage('Post-build') {
             steps {
                 script {
