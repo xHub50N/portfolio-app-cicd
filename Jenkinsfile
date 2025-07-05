@@ -22,13 +22,14 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', 
                                            usernameVariable: 'DOCKERHUB_CREDENTIALS_USR', 
                                            passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW')]) {
-                        
-                        sh """
-                            echo "${DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS_USR}" --password-stdin
-                            cd react-app
-                            docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-                            docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
-                        """
+                                dir("react-app"){
+                                    sh 'ls -la'
+                                    sh """
+                                        echo "${DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS_USR}" --password-stdin
+                                        docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+                                        docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+                                    """
+                        }
                     }
                 }
             }
