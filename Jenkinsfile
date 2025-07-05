@@ -33,7 +33,13 @@ pipeline {
                 }
             }
         }
-
+        stage('Post-build') {
+            steps {
+                script {
+                    echo 'Build completed!' 
+                }
+            }
+        }
         stage ('Deploy')
         {
             steps{
@@ -54,19 +60,12 @@ pipeline {
                                        -p 3000:3000 \\
                                        --restart=always \\
                                        ${DOCKER_IMAGE}:${DOCKER_TAG}
+                            .
                     
                     """
                 }
             }
         }
-        stage('Post-build') {
-            steps {
-                script {
-                    echo 'Build completed!' 
-                }
-            }
-        }
-
     }
     
     post {
