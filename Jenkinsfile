@@ -34,14 +34,40 @@ pipeline {
             }
         }
 
+        stage ('Deploy')
+        {
+            steps{
+                 sshagent(credentials: ['terraform-user']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no terraform@192.168.0.52 '
+                            set -e
+
+                            echo "--- Pull najnowszego obrazu ---"
+                            docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
+
+                            echo "--- Stop & remove starego kontenera (jeśli istnieje) ---"
+                            docker stop portfolio || true
+                            docker rm   portfolio || true
+
+                            echo "--- Uruchamiam nowy kontener ---"
+                            docker run -d --name portfolio \\
+                                       -p 3000:3000 \\
+                                       --restart=always \\
+                                       ${DOCKER_IMAGE}:${DOCKER_TAG}
+                    
+                    """
+                }
+            }
+        }
         steps
+        {
         script {
-            dir("react-app"){
                 sh """
+                   ssh terraform@192.168.0.52
                    docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
                    docker run -p 3000:3000 -d ${DOCKER_IMAGE}:${DOCKER_TAG}
                 """
-                }
+        }
         }
 
         stage('Post-build') {
