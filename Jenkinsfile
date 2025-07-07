@@ -21,11 +21,11 @@ pipeline {
             ])
                 {
                 dir("react-app"){
-                    sh """
+                    sh '''
                         echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
                         docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
                         docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
-                    """
+                    '''
                     }
                 }
             }
@@ -41,7 +41,7 @@ pipeline {
             agent any
             steps {
                 sshagent(credentials: ['terraform-user']) {
-                    sh """
+                    sh '''
                         ssh -o StrictHostKeyChecking=no terraform@192.168.0.52 <<EOF
                         set -e
 
@@ -57,7 +57,7 @@ pipeline {
                                 -p 3000:3000 \\
                                 --restart=always \\
                                 ${DOCKER_IMAGE}:${DOCKER_TAG}
-                    """
+                    '''
                 }
             }
         }
