@@ -10,27 +10,23 @@ pipeline {
     stages {
         stage('Building and pushing container image') {
             agent any
-            // when {
-            //     allOf {
-            //         expression {
-            //             currentBuild.result == null || currentBuild.result == 'SUCCESS'  
-            //         }
-            //     }
-            // }
             steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', 
-                                           usernameVariable: 'DOCKERHUB_CREDENTIALS_USR', 
-                                           passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW')]) {
-                                dir("react-app"){
-                                    sh """
-                                        echo "${DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS_USR}" --password-stdin
-                                        docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-                                        docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
-                                    """
-                        }
-                    }
-                }
+                withVault([
+                vaultSecrets: [[
+                    path: 'secret/docker',
+                    secretValues: [
+                        [envVar: 'DOCKER_USER', vaultKey: 'username'],
+                        [envVar: 'DOCKER_PASS', vaultKey: 'password']
+                    ]
+                ]]
+            ])
+            dir("react-app"){
+            sh """
+                echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
+                docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+                docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+            """
+            }
             }
         }
         stage('Post-build') {
