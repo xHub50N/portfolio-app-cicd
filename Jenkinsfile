@@ -9,7 +9,6 @@ pipeline {
 
     stages {
         stage('Building and pushing container image') {
-            agent any
             steps {
                 withVault([
                 vaultSecrets: [[
@@ -20,13 +19,15 @@ pipeline {
                     ]
                 ]]
             ])
-            dir("react-app"){
-            sh """
-                echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
-                docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-                docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
-            """
-            }
+                {
+                dir("react-app"){
+                    sh """
+                        echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
+                        docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+                        docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+                    """
+                    }
+                }
             }
         }
         stage('Post-build') {
