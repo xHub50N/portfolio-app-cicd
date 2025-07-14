@@ -1,0 +1,47 @@
+---
+- name: Przygotuj tymczasowy klucz SSH z Vault
+  hosts: localhost
+  gather_facts: false
+
+  vars_files:
+    - group_vars/cicd/vault.yml
+
+  tasks:
+    - name: Utwórz plik tymczasowy
+      tempfile:
+        state: file
+        suffix: _id_ed25519
+      register: tmp_key
+
+    - name: Zapisz klucz prywatny z Vault
+      copy:
+        content: "{{ vault_ssh_key_raw.data.data.private_key }}"
+        dest: "{{ tmp_key.path }}"
+        mode: "0600"
+
+    - name: Przypisz ścieżkę z kluczem wszystkim hostom CICD
+      add_host:
+        name: "{{ item }}"
+        ansible_ssh_private_key_file: "{{ tmp_key.path }}"
+      loop: "{{ groups['cicd'] }}"
+
+    - name: Zachowaj ścieżkę klucza jako fakt
+      set_fact:
+        cicd_tmp_key_path: "{{ tmp_key.path }}"
+
+- name: Wykonaj role na hostach CICD z wykorzystaniem Vault-owego klucza SSH
+  hosts: cicd
+  become: true
+  roles:
+    - docker
+    - manage-users
+
+- name: Usuń tymczasowy klucz po zakończeniu
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Usuń plik klucza
+      file:
+        path: "{{ cicd_tmp_key_path }}"
+        state: absent
+      when: cicd_tmp_key_path is defined

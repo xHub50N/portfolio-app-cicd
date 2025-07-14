@@ -1,0 +1,67 @@
+
+version: '3.8'
+
+services:
+  docker:
+    image: docker:dind
+    container_name: jenkins-docker
+    privileged: true
+    restart: always
+    environment:
+      DOCKER_TLS_CERTDIR: "/certs"
+    networks:
+      jenkins:
+        aliases:
+          - docker
+    volumes:
+      - jenkins-docker-certs:/certs/client
+      - jenkins-data:/var/jenkins_home
+    ports:
+      - "2376:2376"
+    command: ["--storage-driver", "overlay2"]
+
+  jenkins:
+    image: jenkins-blueocean
+    container_name: jenkins-blueocean
+    restart: always
+    environment:
+      DOCKER_HOST: "tcp://docker:2376"
+      DOCKER_CERT_PATH: "/certs/client"
+      DOCKER_TLS_VERIFY: "1"
+    networks:
+      - jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client:ro
+
+
+  vault:
+    image: hashicorp/vault:1.17
+    container_name: vault
+    restart: always
+    environment:
+      VAULT_ADDR: "http://127.0.0.1:8200"
+    ports:
+      - "8200:8200"
+      - "8201:8201"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - /home/hubert/vault/data:/vault/data
+      - /home/hubert/vault/config:/vault/config:ro
+    networks:
+     - jenkins
+    entrypoint: vault server -config /vault/config/vault.hcl
+
+networks:
+  jenkins:
+    external: true
+
+volumes:
+  jenkins-docker-certs:
+  jenkins-data:
+  vault-data:
+  vault-config-cert:

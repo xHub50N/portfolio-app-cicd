@@ -1,0 +1,17 @@
+vault_url: "http://192.168.0.234:8200"
+
+ansible_become_password: >-
+    {{
+      lookup('community.hashi_vault.vault_kv2_get',
+             'ansible',
+             field='password',
+             engine_mount_point='secret',
+             url=vault_url)
+    }}
+
+vault_ssh_key_raw: >-
+   {{ lookup('community.hashi_vault.vault_kv2_get',
+            'ssh_proxmox', field='private_key',
+            engine_mount_point='secret',
+            url=vault_url)
+   }}

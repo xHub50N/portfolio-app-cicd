@@ -1,0 +1,11 @@
+vault_url: "http://192.168.0.234:8200"
+
+vault_ssh_key_raw: "{{ lookup('community.hashi_vault.vault_kv2_get',
+                               'ssh_proxmox',
+                               field='private_key',
+                               engine_mount_point='secret',
+                               url=vault_url) }}"
+
+tmp_private_key_path: "/tmp/ansible_ssh_key"
+
+ansible_ssh_private_key_file: "{{ tmp_private_key_path }}"
