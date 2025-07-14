@@ -30,7 +30,7 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - port: 5000
+  - port: 6000
     targetPort: 3000
     protocol: TCP
   selector:
