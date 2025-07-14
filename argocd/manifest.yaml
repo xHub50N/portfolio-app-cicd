@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ labels:
+  run: xhub50n
+ name: xhub50n-portfolio-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: xhub50n-portfolio
+  template:
+    metadata:
+      labels:
+        run: xhub50n-portfolio
+    spec:
+      containers:
+      - name: xhub50n-portfolio
+        image: xhub50n/portfolio-app:latest
+        ports:
+          - containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: xhub50n-portfolio-svc
+  labels:
+    app: xhub50n
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 3000
+    protocol: TCP
+  selector:
+    run: xhub50n-portfolio
