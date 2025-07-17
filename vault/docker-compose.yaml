@@ -1,0 +1,17 @@
+services:
+  vault:
+    image: hashicorp/vault:1.17
+    container_name: vault
+    restart: always
+    environment:
+      VAULT_ADDR: "https://127.0.0.1:8200"
+    ports:
+      - "8200:8200"
+      - "8201:8201"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - /home/hubert/vault/data:/vault/data
+      - /home/hubert/vault/config:/vault/config:ro
+      - /home/hubert/vault/certs:/vault/tls:ro
+    entrypoint: vault server -config /vault/config/vault.hcl
