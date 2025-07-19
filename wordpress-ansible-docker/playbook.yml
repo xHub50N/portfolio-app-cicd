@@ -1,6 +1,0 @@
----
-- hosts: wordpress
-  become: true
-  roles:
-    - docker
-    - wordpress

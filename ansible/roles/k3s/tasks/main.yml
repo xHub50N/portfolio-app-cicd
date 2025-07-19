@@ -7,6 +7,9 @@
 - name: download K3S server
   shell: curl -sfL https://get.k3s.io | sh -
 
+- name: install metallb
+  shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.15.2/config/manifests/metallb-native.yaml
+
 - name: create NS
   shell: kubectl create namespace argocd
 
