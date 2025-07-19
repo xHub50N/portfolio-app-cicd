@@ -8,9 +8,8 @@ storage "raft" {
 
 listener "tcp" {
   address = "[::]:8200"
-  tls_cert_file = "/vault/tls/cert.crt"
-  tls_key_file  = "/vault/tls/key.key"
+  tls_disable = 1
 }
 
-api_addr = "https://192.168.0.234:8200"
-cluster_addr = "https://192.168.0.234:8201"
+api_addr = "http://192.168.0.20:8200"
+cluster_addr = "http://192.168.0.20:8201"

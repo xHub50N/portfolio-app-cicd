@@ -37,31 +37,6 @@ pipeline {
                 }
             }
         }
-        stage('Deploy') {
-            agent any
-            steps {
-                sshagent(credentials: ['terraform-user']) {
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no terraform@192.168.0.52 <<EOF
-                        set -e
-
-                        echo '--- Pull najnowszego obrazu ---'
-                        docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
-
-                        echo '--- Stop & remove starego kontenera (jeśli istnieje) ---'
-                        docker stop portfolio || true
-                        docker rm   portfolio || true
-
-                        echo '--- Uruchamiam nowy kontener ---'
-                        docker run -d --name portfolio \\
-                                -p 3000:3000 \\
-                                --restart=always \\
-                                ${DOCKER_IMAGE}:${DOCKER_TAG}
-                    '''
-                }
-            }
-        }
-
     }
     
     post {

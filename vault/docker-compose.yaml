@@ -13,5 +13,4 @@ services:
     volumes:
       - /home/hubert/vault/data:/vault/data
       - /home/hubert/vault/config:/vault/config:ro
-      - /home/hubert/vault/certs:/vault/tls:ro
     entrypoint: vault server -config /vault/config/vault.hcl

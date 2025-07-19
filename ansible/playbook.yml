@@ -34,7 +34,24 @@
   become: true
   roles:
     - docker
-    - manage-users
+
+- name: Edycja pliku /etc/resolv.conf
+  hosts: ci
+  become: true
+  roles:
+   - resolv
+
+- name: Instalacja Jenkins
+  hosts: ci
+  become: true
+  roles:
+   - jenkins
+
+- name: Instalacja K3S
+  hosts: cd
+  become: true
+  roles:
+   - k3s
 
 - name: Usuń tymczasowy klucz po zakończeniu
   hosts: localhost

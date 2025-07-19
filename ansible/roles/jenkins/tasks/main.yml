@@ -1,0 +1,47 @@
+- name: Create directory for Jenkins Docker setup
+  file:
+    path: /docker/jenkins
+    state: directory
+
+- name: Copy Dockerfile to the remote server with a new name
+  copy:
+    src: ./files/Dockerfile
+    dest: /docker/jenkins/Dockerfile
+
+- name: Copy docker-compose.yml to create Jenkins
+  copy:
+    src: ./files/docker-compose.yml
+    dest: /docker/jenkins/docker-compose.yml
+
+- name: Copy vault.crt to create Jenkins
+  copy:
+    src: ./files/vault.crt
+    dest: /docker/jenkins/vault.crt
+
+- name: Build Docker image from Dockerfile
+  command: docker build -t jenkins-blueocean .
+  args:
+    chdir: /docker/jenkins
+
+- name: Check if Jenkins network exists
+  shell: docker network ls --filter name=jenkins -q
+  register: network_exists
+  changed_when: false
+
+- name: Create Jenkins external network in Docker if not exists
+  command: docker network create jenkins
+  when: network_exists.stdout == ""
+
+- name: Start Jenkins container using docker-compose
+  command: docker compose up -d
+  args:
+    chdir: /docker/jenkins
+
+- name: Create .ssh directory inside the jenkins-blueocean container
+  command: docker exec jenkins-blueocean mkdir -p /var/jenkins_home/.ssh
+
+- name: Set permissions for .ssh directory
+  command: docker exec jenkins-blueocean chmod 700 /var/jenkins_home/.ssh
+
+- name: Run ssh-keyscan inside the jenkins-blueocean container
+  command: docker exec jenkins-blueocean sh -c "ssh-keyscan github.com >> /var/jenkins_home/.ssh/known_hosts"

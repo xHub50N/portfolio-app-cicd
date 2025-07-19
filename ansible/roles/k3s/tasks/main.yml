@@ -1,0 +1,14 @@
+- name: update apt repo
+  shell: apt update && apt upgrade -y
+
+- name: download curl
+  shell: apt install curl -y
+
+- name: download K3S server
+  shell: curl -sfL https://get.k3s.io | sh -
+
+- name: create NS
+  shell: kubectl create namespace argocd
+
+- name: install ArgoCD
+  shell: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml

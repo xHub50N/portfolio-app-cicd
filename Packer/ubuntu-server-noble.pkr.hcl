@@ -42,15 +42,6 @@ source "proxmox-iso" "ubuntu-server-noble" {
     type     = "scsi"
     iso_file = "local:iso/ubuntu-24.04.1-live-server-amd64.iso"
     unmount  = true
-    #    iso_checksum = "e240e4b801f7bb68c20d1356b60968ad0c33a41d00d828e74ceb3364a0317be9"
-    # }
-    # (Option 2) Download ISO
-    # boot_iso {
-    #     type             = "scsi"
-    #     iso_url          = "https://releases.ubuntu.com/24.04/ubuntu-24.04-live-server-amd64.iso"
-    #     unmount          = true
-    #     iso_storage_pool = "local"
-    #     iso_checksum     = "file:https://releases.ubuntu.com/noble/SHA256SUMS"
   }
 
   # VM System Settings
@@ -95,25 +86,11 @@ source "proxmox-iso" "ubuntu-server-noble" {
     "autoinstall ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<wait>",
     "<f10><wait>"
   ]
-  # Useful for debugging
-  # Sometimes lag will require this
-  # boot_key_interval = "500ms"
 
-
-  # PACKER Autoinstall Settings
   http_directory = "http"
-
-  # (Optional) Bind IP Address and Port
-  # http_bind_address       = "0.0.0.0"
-  # http_port_min           = 8802
-  # http_port_max           = 8802
 
   ssh_username = "hubert"
 
-  # (Option 1) Add your Password here
-  # ssh_password        = "your-password"
-  # - or -
-  # (Option 2) Add your Private SSH KEY file here
   ssh_private_key_file = "/home/hubert/.ssh/id_rsa"
 
   # Raise the timeout, when installation takes longer
@@ -121,7 +98,6 @@ source "proxmox-iso" "ubuntu-server-noble" {
   ssh_pty     = true
 }
 
-# Build Definition to create the VM Template
 build {
 
   name    = "ubuntu-server-noble"
@@ -143,17 +119,12 @@ build {
     ]
   }
 
-  # Provisioning the VM Template for Cloud-Init Integration in Proxmox #2
   provisioner "file" {
     source      = "files/99-pve.cfg"
     destination = "/tmp/99-pve.cfg"
   }
 
-  # Provisioning the VM Template for Cloud-Init Integration in Proxmox #3
   provisioner "shell" {
     inline = ["sudo cp /tmp/99-pve.cfg /etc/cloud/cloud.cfg.d/99-pve.cfg"]
   }
-
-  # Add additional provisioning scripts here
-  # ...
 }
