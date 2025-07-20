@@ -2,5 +2,5 @@ resources:
   - manifest.yaml
 
 images:
-  - name: docker.io/xhub50n/portfolio-app
+  - name: xhub50n/portfolio-app
     newTag: 0.1.0
