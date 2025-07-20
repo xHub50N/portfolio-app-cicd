@@ -3,4 +3,4 @@ resources:
 
 images:
   - name: docker.io/xhub50n/portfolio-app
-    newTag: build-1
+    newTag: 0.1.0
