@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: xhub50n-portfolio
-        image: xhub50n/portfolio-app
+        image:  docker.io/xhub50n/portfolio-app
         ports:
           - containerPort: 3000
 
