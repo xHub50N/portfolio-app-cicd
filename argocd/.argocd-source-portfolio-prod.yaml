@@ -1,0 +1,3 @@
+kustomize:
+  images:
+  - docker.io/xhub50n/portfolio-app:0.18.0
