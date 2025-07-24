@@ -11,5 +11,5 @@ listener "tcp" {
   tls_disable = 1
 }
 
-api_addr = "http://192.168.0.20:8200"
-cluster_addr = "http://192.168.0.20:8201"
+api_addr = "http://192.168.1.23:8200"
+cluster_addr = "http://192.168.1.23:8201"
