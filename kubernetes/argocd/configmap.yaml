@@ -10,4 +10,4 @@ data:
         prefix: docker.io
         api_url: https://registry.hub.docker.com
         defaultns: library
-        credentials: pullsecret:argocd/dockerhub-creds
+        credentials: pullsecret:argocd/dockerhub-creds-prod

@@ -15,3 +15,22 @@
 
 - name: install ArgoCD
   shell: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+- name: Change svc settings to Loadbalancer
+  shell: >
+    kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+  
+- name:  download helm script
+  shell: curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+
+- name: change permissions and run installation
+  shell: chmod 700 get_helm.sh && ./get_helm.sh
+
+- name: add helm repo
+  shell: helm repo add external-secrets https://charts.external-secrets.io
+
+- name: Update Helm repositories
+  shell: helm repo update
+
+- name: Install External Secrets Operator
+  shell: helm install external-secrets external-secrets/external-secrets --namespace external-secrets --create-namespace --version 0.15.0

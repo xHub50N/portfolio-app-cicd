@@ -30,7 +30,6 @@ resource "proxmox_vm_qemu" "vm_ci" {
   ciupgrade  = false
   ipconfig0  = "ip=dhcp"
   ciuser     = "terraform"
-  cipassword = var.pm_user_password
   sshkeys    = file("/home/hubert/.ssh/id_ed25519.pub")
 
   disks {
@@ -78,7 +77,6 @@ resource "proxmox_vm_qemu" "vm_cd" {
   ciupgrade  = false
   ipconfig0  = "ip=dhcp"
   ciuser     = "terraform"
-  cipassword = var.pm_user_password
   sshkeys    = file("/home/hubert/.ssh/id_ed25519.pub")
 
   disks {
