@@ -14,15 +14,14 @@ pipeline {
                     def scannerHome = tool 'sonar-scanner' 
 
                     withSonarQubeEnv('sonarqube-server') {
-                        withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                        withCredentials([string(credentialsId: 'sonarqube-my-portfolio-token', variable: 'SONAR_TOKEN')]) {
                             dir('./app') {
-                                sh '''#!/bin/bash
+                                sh """
                                     ${scannerHome}/bin/sonar-scanner \
                                     -Dsonar.projectKey=test-sonar \
                                     -Dsonar.sources=. \
-                                    -Dsonar.host.url=http://192.168.1.21:9000 \
-                                    -Dsonar.login=$SONAR_TOKEN
-                                '''
+                                    -Dsonar.login=${SONAR_TOKEN}  
+                                """
                             }
                         }
                     }
