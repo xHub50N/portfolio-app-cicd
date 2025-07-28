@@ -8,6 +8,26 @@ pipeline {
     }
 
     stages {
+        stage('Analyze code with SonarQube') {
+            steps {
+                script {
+                    def scannerHome = tool 'sonar-scanner' 
+
+                    withSonarQubeEnv('sonarqube-server') {
+                        withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                            dir('./app') {
+                                sh """
+                                    ${scannerHome}/bin/sonar-scanner \
+                                    -Dsonar.projectKey=test-sonar \
+                                    -Dsonar.sources=. \
+                                    -Dsonar.login=${SONAR_TOKEN}  
+                                """
+                            }
+                        }
+                    }
+                }
+            }
+        }
         stage('Building and pushing container image') {
             steps {
                 withVault([
