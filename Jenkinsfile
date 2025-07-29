@@ -8,6 +8,51 @@ pipeline {
     }
 
     stages {
+        stage('Checkout Code') {
+            agent {
+                docker {
+                    image 'node:18'
+                    args '--network host'
+                }
+            }
+            steps {
+                script {
+                    checkout scm
+                }
+            }
+        }
+
+        stage('Install Dependencies') {
+            agent {
+                docker {
+                    image 'node:18'
+                    args '--network host'
+                }
+            }
+            steps {
+                script {
+                    dir('./react-app') {
+                        sh 'npm install'
+                    }
+                }
+            }
+        }
+
+        stage('Build') {
+            agent {
+                docker {
+                    image 'node:18'
+                    args '--network host'
+                }
+            }
+            steps {
+                script {
+                    dir('./react-app') {
+                        sh 'npm run build' 
+                    }
+                }
+            }
+        }
         stage('Analyze code with SonarQube') {
             steps {
                 script {
