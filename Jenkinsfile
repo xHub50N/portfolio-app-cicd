@@ -14,7 +14,7 @@ pipeline {
                     def scannerHome = tool 'sonar-scanner' 
 
                     withCredentials([string(credentialsId: 'sonarqube-token-jenkins', variable: 'SONAR_TOKEN')]) {
-                        dir('./app') {
+                        dir('./react-app') {
                             sh """
                                 ${scannerHome}/bin/sonar-scanner \
                                 -Dsonar.projectKey=test-sonar \
