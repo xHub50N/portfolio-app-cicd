@@ -1,0 +1,33 @@
+- name: Create directory for Sonarqube Docker setup
+  file:
+    path: /docker/sonar
+    state: directory
+
+- name: Create directory for Sonarqube Docker setup
+  file:
+    path: /docker/sonar/app
+    state: directory
+
+- name: Create directory for Sonarqube Docker setup
+  file:
+    path: /docker/sonar/database
+    state: directory
+
+- name: Copy docker-compose.yml to create Sonarqube
+  copy:
+    src: ../files/docker-compose.yml
+    dest: /docker/sonar/docker-compose.yml
+
+- name: Check if Jenkins network exists
+  shell: docker network ls --filter name=jenkins -q
+  register: network_exists
+  changed_when: false
+
+- name: Create external network in Docker if not exists
+  command: docker network create jenkins
+  when: network_exists.stdout == ""
+
+- name: Start Sonarqube container using docker-compose
+  command: docker compose up -d
+  args:
+    chdir: /docker/sonar

@@ -5,17 +5,17 @@
 
 - name: Copy Dockerfile to the remote server with a new name
   copy:
-    src: ./files/Dockerfile
+    src: Dockerfile
     dest: /docker/jenkins/Dockerfile
 
 - name: Copy docker-compose.yml to create Jenkins
   copy:
-    src: ./files/docker-compose.yml
+    src: docker-compose.yml
     dest: /docker/jenkins/docker-compose.yml
 
 - name: Copy vault.crt to create Jenkins
   copy:
-    src: ./files/vault.crt
+    src: vault.crt
     dest: /docker/jenkins/vault.crt
 
 - name: Build Docker image from Dockerfile

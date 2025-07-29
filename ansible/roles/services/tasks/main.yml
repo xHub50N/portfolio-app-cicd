@@ -1,0 +1,43 @@
+- name: Create directories for Docker containers
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /docker
+    - /docker/adguard
+    - /docker/adguard/work
+    - /docker/adguard/conf
+    - /docker/npm
+    - /docker/npm/data
+    - /docker/npm/letsencrypt
+    - /docker/vault
+    - /docker/vault/data
+    - /docker/vault/config
+
+- name: Stop service systemd-resolved, if running
+  ansible.builtin.systemd_service:
+    name: systemd-resolved
+    state: stopped
+    enabled: false
+
+- name: Copy docker-compose.yaml to create adguard
+  copy:
+    src: adguard-docker-compose.yaml
+    dest: /docker/adguard/docker-compose.yaml
+
+- name: Copy docker-compose.yaml to create nginx-proxy-manager
+  copy:
+    src: npm-docker-compose.yaml
+    dest: /docker/npm/docker-compose.yaml
+
+- name: Copy docker-compose.yaml to create hashicorp-vault
+  copy:
+    src: vault-docker-compose.yaml
+    dest: /docker/vault/docker-compose.yaml
+
+- name: Copy vault.hcl
+  copy:
+    src: vault.hcl
+    dest: /docker/vault/config/vault.hcl
+
