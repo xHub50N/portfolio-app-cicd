@@ -1,1 +1,8 @@
+packer_cache/
+
+crash.log
+
+*.pkrvars.hcl
+
+*.box
 credentials.pkr.hcl

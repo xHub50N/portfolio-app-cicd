@@ -19,6 +19,7 @@ resource "proxmox_vm_qemu" "vm_ci" {
   target_node = "proxmox"
   clone       = "ubuntu-server-noble"
   vmid        = 301
+  onboot      = true
 
   agent   = 1
   sockets = 1
@@ -27,10 +28,10 @@ resource "proxmox_vm_qemu" "vm_ci" {
   os_type = "cloud-init"
   scsihw  = "virtio-scsi-pci"
 
-  ciupgrade  = false
-  ipconfig0  = "ip=dhcp"
-  ciuser     = "terraform"
-  sshkeys    = file("/home/hubert/.ssh/id_ed25519.pub")
+  ciupgrade = false
+  ipconfig0 = "ip=dhcp"
+  ciuser    = "terraform"
+  sshkeys   = file("/home/hubert/.ssh/id_ed25519.pub")
 
   disks {
     ide {
@@ -66,6 +67,7 @@ resource "proxmox_vm_qemu" "vm_cd" {
   target_node = "proxmox"
   clone       = "ubuntu-server-noble"
   vmid        = 302
+  onboot      = true
 
   agent   = 1
   sockets = 1
@@ -74,10 +76,10 @@ resource "proxmox_vm_qemu" "vm_cd" {
   os_type = "cloud-init"
   scsihw  = "virtio-scsi-pci"
 
-  ciupgrade  = false
-  ipconfig0  = "ip=dhcp"
-  ciuser     = "terraform"
-  sshkeys    = file("/home/hubert/.ssh/id_ed25519.pub")
+  ciupgrade = false
+  ipconfig0 = "ip=dhcp"
+  ciuser    = "terraform"
+  sshkeys   = file("/home/hubert/.ssh/id_ed25519.pub")
 
   disks {
     ide {
