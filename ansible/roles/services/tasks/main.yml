@@ -15,12 +15,6 @@
     - /docker/vault/data
     - /docker/vault/config
 
-- name: Stop service systemd-resolved, if running
-  ansible.builtin.systemd_service:
-    name: systemd-resolved
-    state: stopped
-    enabled: false
-
 - name: Copy docker-compose.yaml to create adguard
   copy:
     src: adguard-docker-compose.yaml

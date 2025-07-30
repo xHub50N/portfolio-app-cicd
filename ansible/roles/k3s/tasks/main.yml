@@ -1,16 +1,16 @@
-- name: update apt repo
+- name: Update apt repo
   shell: apt update && apt upgrade -y
 
-- name: download curl
+- name: Download curl
   shell: apt install curl -y
 
-- name: download K3S server
+- name: Download K3S server
   shell: curl -sfL https://get.k3s.io | sh -
 
-- name: install metallb
+- name: Install metallb
   shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.15.2/config/manifests/metallb-native.yaml
 
-- name: create NS
+- name: Create namespace
   shell: kubectl create namespace argocd
 
 - name: install ArgoCD
@@ -20,13 +20,13 @@
   shell: >
     kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
   
-- name:  download helm script
+- name:  Download helm script
   shell: curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 
-- name: change permissions and run installation
+- name: Change permissions and run installation
   shell: chmod 700 get_helm.sh && ./get_helm.sh
 
-- name: add helm repo
+- name: Add helm repo
   shell: helm repo add external-secrets https://charts.external-secrets.io
 
 - name: Update Helm repositories

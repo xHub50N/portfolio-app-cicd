@@ -1,11 +1,11 @@
-- name: Usuń symlink /etc/resolv.conf jeśli istnieje
+- name: Delete symlink /etc/resolv.conf if exists
   become: true
   file:
     path: /etc/resolv.conf
     state: absent
     force: true
 
-- name: Wstaw własny plik resolv.conf
+- name: Update resolv.conf file
   become: true
   copy:
     content: |

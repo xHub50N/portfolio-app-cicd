@@ -11,6 +11,6 @@ services:
     cap_add:
       - IPC_LOCK
     volumes:
-      - /home/hubert/vault/data:/vault/data
-      - /home/hubert/vault/config:/vault/config:ro
+      - ./data:/vault/data
+      - ./config:/vault/config:ro
     entrypoint: vault server -config /vault/config/vault.hcl

@@ -1,5 +1,5 @@
 ---
-- name: Przygotuj tymczasowy klucz SSH z Vault
+- name: Prepare a temporary SSH key from Vault
   hosts: localhost
   gather_facts: false
 
@@ -7,45 +7,45 @@
     - group_vars/vault/vault.yml
 
   tasks:
-    - name: Utwórz plik tymczasowy
+    - name: Create temporary file
       tempfile:
         state: file
         suffix: _id_ed25519
       register: tmp_key
 
-    - name: Zapisz klucz prywatny z Vault
+    - name: Save private key from Vault
       copy:
         content: "{{ vault_ssh_key_raw.data.data.private_key }}"
         dest: "{{ tmp_key.path }}"
         mode: "0600"
 
-    - name: Przypisz ścieżkę z kluczem wszystkim hostom services
+    - name: Assign the path with the key to all hosts services
       add_host:
         name: "{{ item }}"
         ansible_ssh_private_key_file: "{{ tmp_key.path }}"
       loop: "{{ groups['services'] }}"
 
-    - name: Zachowaj ścieżkę klucza jako fakt
+    - name: Keep the key path as a fact
       set_fact:
         cicd_tmp_key_path: "{{ tmp_key.path }}"
 
-- name: Instalacja docker-a
+- name: Docker installation
   hosts: services
   become: true
   roles:
     - docker
 
-- name: Skopiuj pliki docker-compose aplikacji Adguard-home, nginx-proxy-manager, hashicorp-vault
+- name: Copy docker-compose files to run - Adguard-home, nginx-proxy-manager, hashicorp-vault
   hosts: services
   become: true
   roles:
    - services
 
-- name: Usuń tymczasowy klucz po zakończeniu
+- name: Delete temporary private key
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Usuń plik klucza
+    - name: Delete temporary private key
       file:
         path: "{{ cicd_tmp_key_path }}"
         state: absent
