@@ -1,16 +1,8 @@
-- name: Delete symlink /etc/resolv.conf if exists
-  become: true
-  file:
-    path: /etc/resolv.conf
-    state: absent
-    force: true
+ - name: Upload skrypt.sh
+   copy:
+    src: create-service-dns.sh
+    dest: /tmp/skrypt.sh
+    mode: '0755'
 
-- name: Update resolv.conf file
-  become: true
-  copy:
-    content: |
-      nameserver 192.168.1.23
-    dest: /etc/resolv.conf
-    owner: root
-    group: root
-    mode: '0644'
+ - name: Execute skrypt.sh
+   command: /tmp/skrypt.sh

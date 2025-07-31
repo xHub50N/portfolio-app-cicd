@@ -1,0 +1,1 @@
+# Przygotowanie wirtualnych maszyn za pomocą Terraform
