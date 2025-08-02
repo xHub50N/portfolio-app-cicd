@@ -61,13 +61,6 @@ W ustawieniach adguard-a przechodzimy do zakładki Filtry > Przepisywanie dns i 
 
 ### Konfiguracja nginx-proxy-manager
 
-#### Wygenerowanie certyfikatu
-
-W moim przypadku wygenerowałem certyfikat na domenę vault.xhub50n.lat za pomocą rządzania generowania certyfikatu CSR. Generowanie certyfiaktu zostawiam do dyspozcyji użytkownika. Ja postawiłem na ZeroSSL ale Letsencrypt również się nada :)
-
-![alt text](./images/zerossl-cert.png)
-
-
 Możemy przejść do folderu z nginx-proxy-manager. Aby uruchomić aplikacje wpisujemy polecenie 
 
 ```
@@ -164,6 +157,23 @@ Możemy teraz przejść pod witrynę https://vault.xhub50n.lat, komunikacja tera
 ![alt text](./images/create-vault-token.png)
 
 Teraz podajemy liczbę sekretów potrzebnych do odblokowania HCP Vault, należy zapisać w bezpiecznym miejscu te sekrety aby nie dostały się w niepowołane ręce, później możemy zalogować sie do systemu za pomoca owych sekretów i tokenu root-a
+
+![alt text](./images/add-pv-key.png)
+
+**WAŻNA KWESTIA** Aby poprawnie dodać klucz prywatny do vault-a należy go dodać bezpośrednio z linii poleceń ponieważ kiedy dodamy go z poziomu GUI to formatowanie klucza jest niepoprawne. 
+
+Aby przejść do kontenera vault należy wykonać polecenie 
+
+```
+docker exec -it vault sh
+```
+
+a następnie w dowolnej lokalizacji należy skopiować i zapisać klucz prywatny i wykonać polecenie dodające klucz do Vaulta a następnie możemy usunąć klucz
+```
+vault kv put kv/ssh_proxmox private_key=@id_rsa
+rm id_rsa
+```
+
 
 ![alt text](./images/add-kv.png)
 

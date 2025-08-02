@@ -127,4 +127,17 @@ build {
   provisioner "shell" {
     inline = ["sudo cp /tmp/99-pve.cfg /etc/cloud/cloud.cfg.d/99-pve.cfg"]
   }
+
+  provisioner "file" {
+    source      = "files/vault.crt"
+    destination = "/tmp/vault.crt"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "sudo cp /tmp/my-ca.crt /usr/local/share/ca-certificates/my-ca.crt",
+      "sudo update-ca-certificates",
+      "sudo rm -f /tmp/my-ca.crt"
+    ]
+}
 }

@@ -1,5 +1,7 @@
 # Przygotowanie obrazów wirtualnych maszyn za pomocą narzędzia Packer 
 
+**Ważna informacja** - w tej sekcji będzie potrzebne posiadanie własnej domeny DNS tak aby można było wygenerować certyfikat z Letsencrypt lub ZeroSSL. Na swoje potrzeby korzystam z domeny xhub50n.lat
+
 W pierwszej kolejności musimy zainstalować narzędzie Packer, będzie ono nam potrzebne do stworzenia obrazu wirtualnej maszyny na wirtualizatorze Proxmox. Ten krok pomoże nam ujednolicić konfigurację systemów oraz zautomatyzować wdrażanie nowych maszyn.
 
 ![Create token](./images/create-token.png)
@@ -41,6 +43,14 @@ user-data:
            - {your-public-key}
 ```
 Natomiast w pliku http/user-data w sekcji ssh_authorized_keys wklejamy zawartość klucza publicznego.
+
+### Wygenerowanie certyfikatu
+
+W moim przypadku wygenerowałem certyfikat na domenę vault.xhub50n.lat za pomocą rządzania generowania certyfikatu CSR. Generowanie certyfiaktu zostawiam do dyspozcyji użytkownika. Ja postawiłem na ZeroSSL ale Letsencrypt również się nada :)
+
+![alt text](./images/zerossl-cert.png)
+
+Następnie wygenerowany certyfikat kopiujemy do folderu files, ponieważ plik packera będzie używać tego certyfikatu aby można było go domyślnie zainstalować w systemie.
 
 Resztę plików konfiguracyjnych można zostawić bez zmian, warto jednak zwrócić uwagę na sekcję
 

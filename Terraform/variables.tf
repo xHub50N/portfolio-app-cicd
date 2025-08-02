@@ -6,10 +6,6 @@ variable "pm_tls_insecure" {
   type      = string
   sensitive = true
 }
-variable "pm_user_password" {
-  type      = string
-  sensitive = true
-}
 variable "vault_token" {
   type      = string
   sensitive = true

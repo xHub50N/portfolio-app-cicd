@@ -41,12 +41,6 @@
   roles:
    - resolv
 
-- name: Copy docker-compose files to run - Adguard-home, nginx-proxy-manager, hashicorp-vault
-  hosts: services
-  become: true
-  roles:
-   - services
-
 - name: Jenkins and Sonarqube installation
   hosts: ci
   become: true

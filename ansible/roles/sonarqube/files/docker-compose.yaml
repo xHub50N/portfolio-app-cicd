@@ -21,8 +21,6 @@ services:
       SONAR_JDBC_PASSWORD: sonar
     ports:
       - "9000:9000"
-    volumes:
-      - ./app:/opt/sonarqube
     networks:
       - jenkins
     depends_on:

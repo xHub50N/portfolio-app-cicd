@@ -15,7 +15,7 @@
 
 - name: Copy docker-compose.yml to create Sonarqube
   copy:
-    src: ../files/docker-compose.yml
+    src: docker-compose.yml
     dest: /docker/sonar/docker-compose.yml
 
 - name: Check if Jenkins network exists

@@ -31,7 +31,7 @@ resource "proxmox_vm_qemu" "vm_ci" {
   ciupgrade = false
   ipconfig0 = "ip=dhcp"
   ciuser    = "terraform"
-  sshkeys   = file("/home/hubert/.ssh/id_ed25519.pub")
+  sshkeys   = file("/home/hubert/.ssh/id_rsa.pub")
 
   disks {
     ide {
@@ -79,7 +79,7 @@ resource "proxmox_vm_qemu" "vm_cd" {
   ciupgrade = false
   ipconfig0 = "ip=dhcp"
   ciuser    = "terraform"
-  sshkeys   = file("/home/hubert/.ssh/id_ed25519.pub")
+  sshkeys   = file("/home/hubert/.ssh/id_rsa.pub")
 
   disks {
     ide {
