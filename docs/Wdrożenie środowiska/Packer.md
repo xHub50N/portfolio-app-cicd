@@ -79,7 +79,7 @@ Po kilku minutach powinniśmy dostać takie informacje
 
 ![alt text](./images/Packer/packer-finish.png) 
 
-![alt text](./images/packer/ready-template.png)
+![alt text](./images/Packer/ready-template.png)
 
 Tak prezentuje się utworzony szablon wirtualnej maszyny
 
