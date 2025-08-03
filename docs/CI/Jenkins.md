@@ -11,7 +11,7 @@ Szybki przegląd działania Jenkinsa w moim środowisku
 
 ## Przygotowanie środowiska
 
-![alt text](./images/check-containers.png)
+![./images/check-containers.png](./images/check-containers.png)
 
 Po poprzednim wykonaniu instalacji środowiska za pomocą ansible warto sprawdzić czy nasze aplikacje zostały uruchomione i czy nie bylo jakichś innych błędów.
 

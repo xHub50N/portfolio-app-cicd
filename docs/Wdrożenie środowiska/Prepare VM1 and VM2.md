@@ -7,7 +7,7 @@
  - Nginx Proxy Manager jako usługa odwrotnego proxy
  - Hashicorp Vault jako skarbiec sekretów potrzebnych do tworzenia i zarządzania środowiskiem
 
- ![alt text](./images/Prepare%20VM1%20and%20VM2/Prepare%20VM1%20and%20VM2/clone-vm.png)
+ ![alt text](./images/Prepare%20VM1%20and%20VM2/clone-vm.png)
 
  W pierwszej kolejności musimy sklonować wirtaulną maszynę na podstawie naszego szablonu, który został stworzony za pomocą packer-a.
 

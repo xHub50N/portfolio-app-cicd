@@ -9,7 +9,7 @@ W tej sekcji pokażę jak poprawnie skonfigurować usługi potrzebne do działan
 
 Po wcześniejszym przygotowaniu maszyny VM2 przez playbook ansible możemy sprawdzić czy pliki docker-compose zostały przeniesione oraz czy foldery zostały utworzone.
 
-![alt text](./images/Docker%20configuration/Docker%20configuration/check-docker.png)
+![alt text](./images/Docker%20configuration/check-docker.png)
 
 Jak widać na powyższym zdjęciu foldery zostały utworzone.
 
@@ -85,7 +85,7 @@ services:
 
 Po uruchomieniu kontenera możemy przejść na adres w przeglądarce http://192.168.1.23:81 
 
-![alt text](npm-conf.png)
+![alt text](./images/Docker%20configuration/npm-conf.png)
 
 Jak widać pojawia nam się ekran logowania do NPM, aby zalogować się musimy użyć domyślnych danych
 ```
