@@ -243,3 +243,5 @@ echo -e "\nUsługa została utworzona i uruchomiona."
 ```
 
 Teraz możemy przejść do konfiguracji usług na VM2
+
+### [Powrót do strony głównej](../Docs.md)

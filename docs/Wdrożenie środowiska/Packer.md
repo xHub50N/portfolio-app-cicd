@@ -82,3 +82,5 @@ Po kilku minutach powinniśmy dostać takie informacje
 ![alt text](./images/packer/ready-template.png)
 
 Tak prezentuje się utworzony szablon wirtualnej maszyny
+
+### [Powrót do strony głównej](../Docs.md)

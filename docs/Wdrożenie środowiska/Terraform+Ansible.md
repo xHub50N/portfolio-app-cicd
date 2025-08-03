@@ -296,3 +296,5 @@ Dla pewności sprawdzam czy działa komunikacja po ssh z nowymi maszynami
 ![alt text](./images/Terraform+Ansible/ansible-success.png)
 
 A tak prezentuje się wykonany już skrypt
+
+### [Powrót do strony głównej](../Docs.md)

@@ -187,3 +187,5 @@ Na powyższym screenshocie pokazuje potrzebne sekrety które są przechowywane w
  - Klucz do githuba
  - Token do proxmox-a
  - Klucz prywatny potrzebny do uwierzytelniania się z hostami
+
+ ### [Powrót do strony głównej](../Docs.md)
