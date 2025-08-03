@@ -4,10 +4,10 @@
 
 W pierwszej kolejności musimy zainstalować narzędzie Packer, będzie ono nam potrzebne do stworzenia obrazu wirtualnej maszyny na wirtualizatorze Proxmox. Ten krok pomoże nam ujednolicić konfigurację systemów oraz zautomatyzować wdrażanie nowych maszyn.
 
-![Create token](./images/create-token.png)
+![Create token](./images/packer/create-token.png)
 Na Proxmox-ie tworzę tokeny do uwierzytelniania się i dokonywania konfiguracji wirtualnych maszyn. Tworzę osobny token dla Packera oraz dla Terraforma.
 
-![alt text](./images/download-image.png)
+![alt text](./images/packer/download-image.png)
 Następnie pobieram obraz ubuntu server 24 i wrzucam go do proxmoxa. 
 
 Kolejnym krokiem będzie instalacja packera na dowolnej maszynie z linuksem bądź WSL.
@@ -48,7 +48,7 @@ Natomiast w pliku http/user-data w sekcji ssh_authorized_keys wklejamy zawartoś
 
 W moim przypadku wygenerowałem certyfikat na domenę vault.xhub50n.lat za pomocą rządzania generowania certyfikatu CSR. Generowanie certyfiaktu zostawiam do dyspozcyji użytkownika. Ja postawiłem na ZeroSSL ale Letsencrypt również się nada :)
 
-![alt text](./images/zerossl-cert.png)
+![alt text](./images/packer/zerossl-cert.png)
 
 Następnie wygenerowany certyfikat kopiujemy do folderu files, ponieważ plik packera będzie używać tego certyfikatu aby można było go domyślnie zainstalować w systemie.
 
@@ -77,8 +77,8 @@ Na samym końcu wykonujemy polecenie
 
 Po kilku minutach powinniśmy dostać takie informacje
 
-![alt text](./images/packer-finish.png) 
+![alt text](./images/packer/packer-finish.png) 
 
-![alt text](./images/ready-template.png)
+![alt text](./images/packer/ready-template.png)
 
 Tak prezentuje się utworzony szablon wirtualnej maszyny

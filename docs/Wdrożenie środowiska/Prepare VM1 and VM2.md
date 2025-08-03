@@ -1,4 +1,4 @@
-# W tej sekcji przedstawię przygotowanie maszyn VM1 oraz VM2
+# Przygotowanie i wstępne skonfigurowanie wirtualnych maszyn VM1 i VM2
 
  Maszyna VM1 która będzie posiadać nazwę srv-provisioning będzie odpowiedzialna za tworznie infrastruktury wirtualnych maszyn VM3 oraz VM4 za pomocą terraforma, dodatkowo maszyna VM1 będzie mieć na pokładzie zainstalowany ansible do dokonywania konfiguracji i instalacji potrzebnego oprogramowania w zautoamtyzowany sposób.
 
@@ -7,14 +7,14 @@
  - Nginx Proxy Manager jako usługa odwrotnego proxy
  - Hashicorp Vault jako skarbiec sekretów potrzebnych do tworzenia i zarządzania środowiskiem
 
- ![alt text](./images/clone-vm.png)
+ ![alt text](./images/Prepare%20VM1%20and%20VM2/Prepare%20VM1%20and%20VM2/clone-vm.png)
 
  W pierwszej kolejności musimy sklonować wirtaulną maszynę na podstawie naszego szablonu, który został stworzony za pomocą packer-a.
 
- ![alt text](./images/cloud-init.png)
+ ![alt text](./images/Prepare%20VM1%20and%20VM2/cloud-init.png)
  Po sklonowaniu VM możemy przejść do sekcji cloud-init, musimy zaznaczyć aby adresacja została przydzielona przez DHCP (wcześniej na routerze została dodana rezerwacja adresu poprzez MAC) i klikamy regenerate-image, możemy uruchomić wirtualną maszynę
 
-![alt text](./images/ssh-login.png)
+![alt text](./images/Prepare%20VM1%20and%20VM2/ssh-login.png)
 
 Udało się zalogować na VM1, teraz możemy powtórzyć ten krok dla VM2.
 
@@ -53,7 +53,7 @@ sudo apt update
 sudo apt-get install terraform
 ```
 
-![alt text](./images/terraform+ansible.png)
+![alt text](./images/Prepare%20VM1%20and%20VM2/terraform+ansible.png)
 
 Udało się zainstalować oprogramowanie.
 
@@ -61,11 +61,11 @@ Następnym krokiem będzie przygotowanie playbooków ansible oraz plików terraf
 
 Z repozytorium kopiujemy zawartość folderów ansible oraz terraform na maszynę wirtualną VM1
 
-![alt text](./images/terraform+ansible-files.png)
+![alt text](./images/Prepare%20VM1%20and%20VM2/terraform+ansible-files.png)
 
 Tak to powinno wyglądać 
 
-![alt text](./images/copy-key.png)
+![alt text](./images/Prepare%20VM1%20and%20VM2/copy-key.png)
 
 Dodatkowo przyda nam się skopiowanie klucza prywatnego i publicznego, który został utworzony podczas konfiguracji packera
 
@@ -196,11 +196,9 @@ Jeśli wszystko skonfigurujemy według naszych potrzeb możemy uruchomić playbo
 ansible-playbook -i inventory.ini playbook-services.yml
 ```
 
-![alt text](./images/ready-ansible.png)
+![alt text](./images/Prepare%20VM1%20and%20VM2/ready-ansible.png)
 
 Tak prezentuje się wynik udanego wykonania playbooka!
-
-![alt text](./images/ready-ansible.png)
 
 Na samym końcu możemy stworzyć własną usługę która będzie zapisywać do pliku `/etc/resolv.conf ` adres DNS serwera VM2
 

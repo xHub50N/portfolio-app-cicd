@@ -4,7 +4,7 @@ W tym module zajmę się przygotowaniem wirtualnych maszyn VM3 oraz VM4 za pomoc
 
 W pierwszej kolejności upewniamy się czy mamy odpowiednie pliki pobrane pobrane z repozytorium w katalogu terraform
 
-![alt text](./images/prepare-terraform-files.png)
+![alt text](./images/Terraform+Ansible/prepare-terraform-files.png)
 
 Taka powinna być zawartość folderu.
 
@@ -173,37 +173,126 @@ Konfigurację dokonujemy według własnych potrzeb, na co warto zwrócić uwagę
 
 ### Uruchomienie terraform-a
 
-![alt text](./images/terraform-init.png)
+![alt text](./images/Terraform+Ansible/terraform-init.png)
 
 Pierwszym krokiem jest zainicjowanie całego środowiska i pobranie zależności przez terraform-a, musimy wykonać polecenie 
 `terraform init`, następnie terraform sprawdzi plik main.tf oraz providers.tf w którym są zapisane informacje o zależnościach koniecznych do pobrania.
 
-![alt text](./images/terraform-plan.png)
+![alt text](./images/Terraform+Ansible/terraform-plan.png)
 
 W kolejnym kroku możemy dokonać sprawdzenia utworzenia naszej konfiguracji, polecenie `terraform plan` wykona symulacje utworzenia środowiska, możemy podejrzeć część właściwości które zostaną zaaplikowane a które mogą zostać usunięte lub zmienione w razie zmiany konfiguracji.
 
 Ważną kwestią jest podanie tokenu do uwierzytelnienia z Hashicorp Vault
 
-![alt text](./images/terraform-apply.png)
+![alt text](./images/Terraform+Ansible/terraform-apply.png)
 
 Analogicznie mamy juz polecenie `terraform apply`, wyświetlone informację będą tożsame z wynikiem polecenia `terraform plan` jednakże na końcu mamy możliwość zaakceptowania wprowadzenia zmian przez terraform-a. Po wpisaniu `yes` - dokonuje się magia.
 
-![alt text](./images/all-mashines.png)
+![alt text](./images/Terraform+Ansible/all-mashines.png)
 
 Tak prezentuje się w pełni utworzone środowisko
 
 ## Konfiguracja za pomocą Ansible
 
+### Przygotowanie plików
 Aby zainstalować potrzebne oprogramowanie na serwerze VM3 i VM4 wykorzystam do tego ponownie narzędzie ansible.
 
-![alt text](./images/export-token-ansible.png)
+Wszystkie pliki konfiguracji ansible są zapisane w folderze `ansible/roles`
+
+Natomiast tak prezentuje się główny plik playbook.yml
+
+```
+---
+- name: Prepare a temporary SSH key from Vault
+  hosts: localhost
+  gather_facts: false
+
+  vars_files:
+    - group_vars/vault/vault.yml
+
+  tasks:
+    - name: Create temporary file
+      tempfile:
+        state: file
+        suffix: _id_ed25519
+      register: tmp_key
+
+    - name: Save private key from Vault
+      copy:
+        content: "{{ vault_ssh_key_raw.data.data.private_key }}"
+        dest: "{{ tmp_key.path }}"
+        mode: "0600"
+
+    - name: Assign the path with the key to all CICD hosts
+      add_host:
+        name: "{{ item }}"
+        ansible_ssh_private_key_file: "{{ tmp_key.path }}"
+      loop: "{{ groups['cicd'] }}"
+
+    - name: Keep the key path as a fact
+      set_fact:
+        cicd_tmp_key_path: "{{ tmp_key.path }}"
+
+- name: Docker installation
+  hosts: all
+  become: true
+  roles:
+    - docker
+
+- name: Edit file /etc/resolv.conf
+  hosts: cicd
+  become: true
+  roles:
+   - resolv
+
+- name: Jenkins and Sonarqube installation
+  hosts: ci
+  become: true
+  roles:
+   - jenkins
+   - sonar
+
+- name: K3S installation
+  hosts: cd
+  become: true
+  roles:
+   - k3s
+
+- name: Delete temporary private key
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Delete temporary private key
+      file:
+        path: "{{ cicd_tmp_key_path }}"
+        state: absent
+      when: cicd_tmp_key_path is defined
+
+```
+
+Oraz kluczowy dla nas plik w nawiazywaniu połączenia pomiędzy ansiblem i vault-em który pobiera interesujące nas dane:
+
+```
+vault_url: "https://vault.xhub50n.lat"
+
+vault_ssh_key_raw: >-
+   {{ lookup('community.hashi_vault.vault_kv2_get',
+            'ssh_proxmox', field='private_key',
+            engine_mount_point='secret',
+            url=vault_url)
+   }}
+```
+
+### Uruchomienie playbook-a
+
+![alt text](./images/Terraform+Ansible/export-token-ansible.png)
 
 Przed wykonaniem skryptu muszę zdefiniować zmienną VAULT_TOKEN która zawiera token do HCP Vault oraz dodatkowo aktywuje środowisko ansible-vault.
 
-![alt text](./images/login-to-nodes.png)
+![alt text](./images/Terraform+Ansible/login-to-nodes.png)
 
 Dla pewności sprawdzam czy działa komunikacja po ssh z nowymi maszynami
 
-![alt text](./images/ansible-success.png)
+![alt text](./images/Terraform+Ansible/ansible-success.png)
 
 A tak prezentuje się wykonany już skrypt

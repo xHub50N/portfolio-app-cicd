@@ -62,7 +62,7 @@ pipeline {
                         dir('./react-app') {
                             sh """
                                 ${scannerHome}/bin/sonar-scanner \
-                                -Dsonar.projectKey=test-sonar \
+                                -Dsonar.projectKey=portfolio-cicd \
                                 -Dsonar.sources=. \
                                 -Dsonar.host.url=http://192.168.1.21:9000 \
                                 -Dsonar.login=${SONAR_TOKEN}

@@ -9,7 +9,7 @@ W tej sekcji pokażę jak poprawnie skonfigurować usługi potrzebne do działan
 
 Po wcześniejszym przygotowaniu maszyny VM2 przez playbook ansible możemy sprawdzić czy pliki docker-compose zostały przeniesione oraz czy foldery zostały utworzone.
 
-![alt text](./images/check-docker.png)
+![alt text](./images/Docker%20configuration/Docker%20configuration/check-docker.png)
 
 Jak widać na powyższym zdjęciu foldery zostały utworzone.
 
@@ -39,7 +39,7 @@ services:
        - ./conf:/opt/adguardhome/conf
 ```
 
-![alt text](./images/adguard-error.png)
+![alt text](./images/Docker%20configuration/adguard-error.png)
 
 Na powyższym screenie widać że kontener został pobrany jednakże wystąpił problem z przekierowaniem portu 53, ponieważ na systemie gospodarza obecnie działa lokalny serwer dns, aby to zmienić należy wykonać poniższe polecenia:
 
@@ -49,13 +49,13 @@ systemctl disable systemd-resolved
 docker compose up -d
 ```
 
-![alt text](./images/adguard-home.png)
+![alt text](./images/Docker%20configuration/adguard-home.png)
 
 
 Teraz możemy przejść do konfiguracji adguard-a, wystarczy przejść na adres http://adres-maszyny:3000 i przejść prostą konfigurację
 
 
-![alt text](./images/dns-rewrite.png)
+![alt text](./images/Docker%20configuration/dns-rewrite.png)
 
 W ustawieniach adguard-a przechodzimy do zakładki Filtry > Przepisywanie dns i dodajemy wpis przepisywania. 
 
@@ -93,11 +93,11 @@ login: admin@example.com
 password: changeme
 ```
 
-![alt text](./images/add-cert.png)
+![alt text](./images/Docker%20configuration/add-cert.png)
 
 Po zalogowaniu się **i zmianie hasła** możemy dodać nasz certyfikat do NPM, musimy mieć przygotowany klucz prywatny certyfikatu oraz sam certyfikat do importu
 
-![alt text](./images/add-host.png)
+![alt text](./images/Docker%20configuration/add-host.png)
 
 Na sam koniec możemy dodać już host do przekierowania, ustawiłem domenę vault.xhub50n.lat oraz nakierowałem na lokalny port 8200 pod którym będzie uruchomiony HCP Vault - dodatkowo podpinamy pod do certyfikat.
 
@@ -150,15 +150,15 @@ api_addr = "http://192.168.1.23:8200"
 cluster_addr = "http://192.168.1.23:8201"
 ```
 
-![alt text](./images/vault-init.png)
+![alt text](./images/Docker%20configuration/vault-init.png)
 
 Możemy teraz przejść pod witrynę https://vault.xhub50n.lat, komunikacja teraz działa w bezpiecznym szyfrowanym połączeniu, możemy teraz przejśc konfigurację HCP Vault. W tym miejscu klikamy Create a new Raft cluster
 
-![alt text](./images/create-vault-token.png)
+![alt text](./images/Docker%20configuration/create-vault-token.png)
 
 Teraz podajemy liczbę sekretów potrzebnych do odblokowania HCP Vault, należy zapisać w bezpiecznym miejscu te sekrety aby nie dostały się w niepowołane ręce, później możemy zalogować sie do systemu za pomoca owych sekretów i tokenu root-a
 
-![alt text](./images/add-pv-key.png)
+![alt text](./images/Docker%20configuration/add-pv-key.png)
 
 **WAŻNA KWESTIA** Aby poprawnie dodać klucz prywatny do vault-a należy go dodać bezpośrednio z linii poleceń ponieważ kiedy dodamy go z poziomu GUI to formatowanie klucza jest niepoprawne. 
 
@@ -175,12 +175,12 @@ rm id_rsa
 ```
 
 
-![alt text](./images/add-kv.png)
+![alt text](./images/Docker%20configuration/add-kv.png)
 
 Następnym krokiem po zalogowaniu się musimy dodać "silnik" sekretów kv tak aby można było w nim przechowywać sekrety jako para klucz-wartość
 
 
-![alt text](./images/create-secrets.png)
+![alt text](./images/Docker%20configuration/create-secrets.png)
 
 Na powyższym screenshocie pokazuje potrzebne sekrety które są przechowywane w HCP vault są to m.in:
  - Dane logowania do Docker Hub
