@@ -9,7 +9,7 @@ W tym artykule zawarta jest kompleksowa dokumentacja wdrożenia projektu. Chcę 
 #### Wdrożenie infrastruktury
 - [Packer](./Wdrożenie%20środowiska/Packer.md)
 - [Przygotowanie Wirtualnych Maszyn VM1 i VM2](./Wdrożenie%20środowiska/Prepare%20VM1%20and%20VM2.md)
-- [Konfiguracja apliakcji Dockerowych](./Wdrożenie%20środowiska/Docker%20configuration.md)
+- [Konfiguracja aplikacji Dockerowych](./Wdrożenie%20środowiska/Docker%20configuration.md)
 - [Terraform oraz Ansible](./Wdrożenie%20środowiska/Terraform+Ansible.md)
 
 #### Proces CI
