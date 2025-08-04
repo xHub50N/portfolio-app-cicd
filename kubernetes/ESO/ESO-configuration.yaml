@@ -1,4 +1,20 @@
 apiVersion: external-secrets.io/v1beta1
+kind: ClusterSecretStore
+metadata:
+  name: vault-backend
+spec:
+  provider:
+    vault:
+      server: "https://vault.xhub50n.lat"
+      path: "kv"
+      version: "v2"
+      auth:
+        tokenSecretRef:
+          name: "vault-token"
+          namespace: "argocd"
+          key: "token"
+---
+apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
   name: dockerhub-creds
@@ -27,3 +43,22 @@ spec:
   dataFrom:
     - extract:
         key: docker
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: gh-private-key
+  namespace: argocd
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  target:
+    name: gh-private-key
+    creationPolicy: Owner
+  data:
+    - secretKey: sshPrivateKey
+      remoteRef:
+        key: github_key
+        property: private_key

@@ -47,8 +47,6 @@
     mode: '0755'
   loop:
     - /kubernetes
-    - /kubernetes/argocd
-    - /kubernetes/ESO
 
 - name: Copy files
   copy:
@@ -59,23 +57,3 @@
     mode: '0644'
   with_fileglob:
     - "{{ role_path }}/files/*"
-
-- name: Copy files
-  copy:
-    src: "{{ item }}"
-    dest: /kubernetes/argocd
-    owner: root
-    group: root
-    mode: '0644'
-  with_fileglob:
-    - "{{ role_path }}/files/argocd/*"
-
-- name: Copy files
-  copy:
-    src: "{{ item }}"
-    dest: /kubernetes/ESO
-    owner: root
-    group: root
-    mode: '0644'
-  with_fileglob:
-    - "{{ role_path }}/files/ESO/*"

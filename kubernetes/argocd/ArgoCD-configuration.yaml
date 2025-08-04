@@ -1,0 +1,165 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argocd-image-updater
+  namespace: argocd
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: argocd-image-updater-extra-access
+  namespace: argocd
+rules:
+  - apiGroups: [""]
+    resources: ["secrets", "configmaps"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["argoproj.io"]
+    resources: ["applications"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argocd-image-updater-extra-access-binding
+  namespace: argocd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: argocd-image-updater-extra-access
+subjects:
+  - kind: ServiceAccount
+    name: argocd-image-updater
+    namespace: argocd
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: argocd-image-updater-secret-access
+  namespace: argocd
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argocd-image-updater-secret-access-binding
+  namespace: argocd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: argocd-image-updater-secret-access
+subjects:
+  - kind: ServiceAccount
+    name: argocd-image-updater
+    namespace: argocd
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-image-updater
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-image-updater
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-image-updater
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-image-updater
+    spec:
+      serviceAccountName: argocd-image-updater
+      containers:
+      - name: argocd-image-updater
+        image: argoprojlabs/argocd-image-updater:latest
+        args:
+          - run
+          - --argocd-server-addr=argocd-server.argocd.svc.cluster.local:443
+          - --argocd-namespace=argocd
+          - --loglevel=debug
+          - --argocd-insecure
+        env:
+        - name: ARGOCD_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: argocd-image-updater-secret
+              key: argocd.token
+        - name: ARGOCD_IMAGE_UPDATER_REGISTRIES
+          value: /app/config/registries.conf
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: updater-config
+          mountPath: /app/config
+          readOnly: true
+      volumes:
+        - name: updater-config
+          configMap:
+            name: argocd-image-updater-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-image-updater-config
+  namespace: argocd
+data:
+  registries.conf: |
+    registries:
+      - name: Docker Hub
+        prefix: docker.io
+        api_url: https://registry.hub.docker.com
+        defaultns: library
+        credentials: pullsecret:argocd/dockerhub-creds-prod
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: portfolio-prod
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: xhub50n/portfolio-app
+    argocd-image-updater.argoproj.io/xhub50n.portfolio-app.update-strategy: semver
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/gh-private-key
+    argocd-image-updater.argoproj.io/git-branch: main
+spec:
+  project: portfolio
+  source:
+    repoURL: git@github.com:xHub50N/portfolio-app-cicd.git
+    targetRevision: main
+    path: argocd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: portfolio
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: portfolio
+  labels:
+    name: portfolio
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: portfolio
+  namespace: argocd
+spec:
+  destinations:
+    - namespace: portfolio
+      server: https://kubernetes.default.svc
+  sourceRepos:
+    - '*'
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
