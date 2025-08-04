@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: portfolio-prod
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: xhub50n/portfolio-app
+    argocd-image-updater.argoproj.io/xhub50n.portfolio-app.update-strategy: semver
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/gh-private-key
+    argocd-image-updater.argoproj.io/git-branch: main
+spec:
+  project: portfolio
+  source:
+    repoURL: git@github.com:xHub50N/portfolio-app-cicd.git
+    targetRevision: main
+    path: argocd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: portfolio
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

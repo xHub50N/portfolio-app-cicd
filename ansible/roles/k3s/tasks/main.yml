@@ -10,8 +10,11 @@
 - name: Install metallb
   shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.15.2/config/manifests/metallb-native.yaml
 
-- name: Create namespace
+- name: Create namespace if it doesn't exist
   shell: kubectl create namespace argocd
+  register: create_ns
+  failed_when: create_ns.rc != 0 and 'AlreadyExists' not in create_ns.stderr
+
 
 - name: install ArgoCD
   shell: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
@@ -33,7 +36,46 @@
   shell: helm repo update
 
 - name: Install External Secrets Operator
-  shell: helm install external-secrets external-secrets/external-secrets --namespace external-secrets --create-namespace --version 0.15.0
+  shell: helm upgrade --install external-secrets external-secrets/external-secrets --namespace external-secrets --create-namespace --version 0.15.0
   environment:
     KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
+- name: Create folder for Kubernetes manifests
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /kubernetes
+    - /kubernetes/argocd
+    - /kubernetes/ESO
+
+- name: Copy files
+  copy:
+    src: "{{ item }}"
+    dest: /kubernetes
+    owner: root
+    group: root
+    mode: '0644'
+  with_fileglob:
+    - "{{ role_path }}/files/*"
+
+- name: Copy files
+  copy:
+    src: "{{ item }}"
+    dest: /kubernetes/argocd
+    owner: root
+    group: root
+    mode: '0644'
+  with_fileglob:
+    - "{{ role_path }}/files/argocd/*"
+
+- name: Copy files
+  copy:
+    src: "{{ item }}"
+    dest: /kubernetes/ESO
+    owner: root
+    group: root
+    mode: '0644'
+  with_fileglob:
+    - "{{ role_path }}/files/ESO/*"

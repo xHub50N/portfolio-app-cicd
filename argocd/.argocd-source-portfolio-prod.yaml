@@ -1,3 +1,0 @@
-kustomize:
-  images:
-  - xhub50n/portfolio-app:0.29.0
