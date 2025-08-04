@@ -281,7 +281,7 @@ Sprawdzenie pliku wygenerowanego przez ArgoCD - aplikacja będzie nanosić zmian
 
 Po chwili ArgoCD wykrywa nowy commit na repozytorium, pobiera zmiany i dostosowuje klaster K3S do uruchomienia aplikacji w najnowszej wersji.
 
-![alt text](argocd-update-jenkins.png)
+![alt text](./images/argocd-update-jenkins.png)
 
 A tak prezentuje się widok w panelu webowym.
 

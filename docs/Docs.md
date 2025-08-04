@@ -15,6 +15,7 @@ W tym artykule zawarta jest kompleksowa dokumentacja wdrożenia projektu. Chcę 
 #### Proces CI
 - [Instalacja i Konfiguracja Jenkins oraz Sonarqube](./CI/Jenkins.md)
 #### Proces CD
+- [Konfiguracja i wdrożenie K3S oraz ArgoCD](./CD/k3s.md)
 
 ---
 ### Schemat Środowiska
@@ -42,4 +43,5 @@ W tym artykule zawarta jest kompleksowa dokumentacja wdrożenia projektu. Chcę 
 - Nginx Proxy Manager - serwer odwrotnego proxy
 
 
+### [Powrót do strony głównej](../README.md)
 

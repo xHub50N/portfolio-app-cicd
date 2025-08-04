@@ -52,6 +52,8 @@ W moim przypadku wygenerowałem certyfikat na domenę vault.xhub50n.lat za pomoc
 
 Następnie wygenerowany certyfikat kopiujemy do folderu files, ponieważ plik packera będzie używać tego certyfikatu aby można było go domyślnie zainstalować w systemie.
 
+**Uwaga jeśli korzystamy z ZeroSSL to należy złączyć certyfikat naszej domeny oraz ZeroSSL - jeśli będziemy korzystać z samego certyfikatu naszej domeny to mogą pojawiać się błędy dotyczące błędu zaufania.**
+
 Resztę plików konfiguracyjnych można zostawić bez zmian, warto jednak zwrócić uwagę na sekcję
 
 ```
