@@ -31,7 +31,7 @@ pipeline {
             }
             steps {
                 script {
-                    dir('./react-app') {
+                    dir('./portfolio-app') {
                         sh 'npm install'
                     }
                 }
@@ -47,7 +47,7 @@ pipeline {
             }
             steps {
                 script {
-                    dir('./react-app') {
+                    dir('./portfolio-app') {
                         sh 'npm run build' 
                     }
                 }
@@ -59,7 +59,7 @@ pipeline {
                     def scannerHome = tool 'sonar-scanner' 
 
                     withCredentials([string(credentialsId: 'sonarqube-token-jenkins', variable: 'SONAR_TOKEN')]) {
-                        dir('./react-app') {
+                        dir('./portfolio-app') {
                             sh """
                                 ${scannerHome}/bin/sonar-scanner \
                                 -Dsonar.projectKey=portfolio-cicd \
@@ -84,7 +84,7 @@ pipeline {
                 ]]
             ])
                 {
-                dir("react-app"){
+                dir("portfolio-app"){
                     sh '''
                         echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
                         docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
