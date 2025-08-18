@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "xhub50n/portfolio-app"
-        DOCKER_TAG = ""
         DOCKER_REGISTRY = 'registry.hub.docker.com' 
     }
 
