@@ -7,3 +7,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <GitProfile config={CONFIG} />
   </React.StrictMode>,
 );
+//
