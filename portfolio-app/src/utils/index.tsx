@@ -23,7 +23,7 @@ type EventParams = {
 type Colors = {
   [key: string]: { color: string | null; url: string };
 };
-
+//
 export const getSanitizedConfig = (
   config: Config,
 ): SanitizedConfig | Record<string, never> => {
