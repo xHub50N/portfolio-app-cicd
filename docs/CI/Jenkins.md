@@ -211,15 +211,37 @@ W konfiguracji podaję adres mojego repozytorium oraz sposób uwierzytelniania s
 
 ```
 pipeline {
-    agent any 
+    agent any
 
     environment {
         DOCKER_IMAGE = "xhub50n/portfolio-app"
-        DOCKER_TAG = "0.${BUILD_NUMBER}.0"
         DOCKER_REGISTRY = 'registry.hub.docker.com' 
     }
 
     stages {
+        stage('Prepare Tag') {
+            steps {
+                script {
+                    def commitHash = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    def buildDate  = sh(script: "date +%Y%m%d%H%M%S", returnStdout: true).trim()
+                    env.DOCKER_TAG = "${buildDate}-${commitHash}"
+                    echo "Using Docker tag: ${env.DOCKER_TAG}"
+                }
+            }
+        }
+        stage('Check Commit Author') {
+            steps {
+                script {
+                    def author = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
+                    if (author.contains("argocd-image-updater")) {
+                        echo "Commit from ArgoCD image updater — skipping build"
+                        currentBuild.result = 'ABORTED'
+                        error("Skipping build due to ArgoCD commit")
+                    }
+                }
+            }
+        }
+
         stage('Checkout Code') {
             agent {
                 docker {
@@ -228,9 +250,7 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    checkout scm
-                }
+                checkout scm
             }
         }
 
@@ -242,10 +262,8 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    dir('./react-app') {
-                        sh 'npm install'
-                    }
+                dir('./portfolio-app') {
+                    sh 'npm install'
                 }
             }
         }
@@ -258,20 +276,18 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    dir('./react-app') {
-                        sh 'npm run build' 
-                    }
+                dir('./portfolio-app') {
+                    sh 'npm run build'
                 }
             }
         }
+
         stage('Analyze code with SonarQube') {
             steps {
                 script {
-                    def scannerHome = tool 'sonar-scanner' 
-
+                    def scannerHome = tool 'sonar-scanner'
                     withCredentials([string(credentialsId: 'sonarqube-token-jenkins', variable: 'SONAR_TOKEN')]) {
-                        dir('./react-app') {
+                        dir('./portfolio-app') {
                             sh """
                                 ${scannerHome}/bin/sonar-scanner \
                                 -Dsonar.projectKey=portfolio-cicd \
@@ -284,49 +300,82 @@ pipeline {
                 }
             }
         }
+
         stage('Building and pushing container image') {
             steps {
                 withVault([
-                vaultSecrets: [[
-                    path: 'kv/docker',
-                    secretValues: [
-                        [envVar: 'DOCKER_USER', vaultKey: 'username'],
-                        [envVar: 'DOCKER_PASS', vaultKey: 'password']
-                    ]
-                ]]
-            ])
-                {
-                dir("react-app"){
-                    sh '''
-                        echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
-                        docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-                        docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
-                    '''
+                    vaultSecrets: [[
+                        path: 'kv/docker',
+                        secretValues: [
+                            [envVar: 'DOCKER_USER', vaultKey: 'username'],
+                            [envVar: 'DOCKER_PASS', vaultKey: 'password']
+                        ]
+                    ]]
+                ]) {
+                    dir("portfolio-app") {
+                        sh '''
+                            echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
+                            docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+                            docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+                        '''
                     }
                 }
             }
         }
+
         stage('Post-build') {
             steps {
-                script {
-                    echo 'Build completed!' 
-                }
+                echo 'Build completed!'
             }
         }
     }
-    
+
     post {
         success {
             echo 'Pipeline zakończony sukcesem!'
         }
+        aborted {
+            echo 'Pipeline został pominięty (commit od ArgoCD).'
+        }
         failure {
-            echo 'Pipeline zakończony błędem!' 
+            echo 'Pipeline zakończony błędem!'
+        }
+    }
+}
+
+```
+
+Tak prezentuje się cały plik `Jenkinsfile`. Ten plik dokonuje kompleksowego zbudowania i opublikowania aplikacji napisanej w React.
+
+```
+stage('Prepare Tag') {
+            steps {
+                script {
+                    def commitHash = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    def buildDate  = sh(script: "date +%Y%m%d%H%M%S", returnStdout: true).trim()
+                    env.DOCKER_TAG = "${buildDate}-${commitHash}"
+                    echo "Using Docker tag: ${env.DOCKER_TAG}"
+                }
+            }
+        }
+```
+Istotną kwestią jest dodawnia tag-ów do obrazów kontenerów, mianowicie tagi będą tworzone na podstawie daty oraz hash-a commita na githubie
+
+```
+ stage('Check Commit Author') {
+    steps {
+        script {
+            def author = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
+            if (author.contains("argocd-image-updater")) {
+                echo "Commit from ArgoCD image updater — skipping build"
+                currentBuild.result = 'ABORTED'
+                error("Skipping build due to ArgoCD commit")
+            }
         }
     }
 }
 ```
-
-Tak prezentuje się cały plik `Jenkinsfile`. Ten plik dokonuje kompleksowego zbudowania i opublikowania aplikacji napisanej w React.
+W tym etapie sprawdzam autora danego commita - jeśli autorem jest argocd-image-updater to Jenkins domyślnie anuluje tworzenie obrazu kontenera, dlaczego ten blok kodu tutaj umieściłem to wyjaśni się w dalszej części dokumentacji.
 
 ```
 stage('Analyze code with SonarQube') {

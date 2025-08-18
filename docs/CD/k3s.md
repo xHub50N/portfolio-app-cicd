@@ -183,7 +183,7 @@ Możemy sprawdzić czy ArgoCD nawiązał połączenie z repo - jak widać udało
 
 ![alt text](./images/argocd-add-docker.png)
 
-**UWAGA** - teraz należy dokonać konfiguracji aplikacji i manifestu automatycznego wdrażania naszej aplikacji do klastra K3S. W naszymn repozytorium tworzymy folder o nazwie np `argocd` (nazwa folderu jest obojętna, ważne aby obiekt Application w ArgoCD miał nakierowany folder w repozytorium o tej samej nazwie)
+**UWAGA** - teraz należy dokonać konfiguracji aplikacji i manifestu automatycznego wdrażania naszej aplikacji do klastra K3S. W naszym repozytorium tworzymy folder o nazwie np `argocd` (nazwa folderu jest obojętna, ważne aby obiekt Application w ArgoCD miał nakierowany folder w repozytorium o tej samej nazwie)
 
 Wycinek pliku `kubernetes/argocd/application.yaml`
 ```
@@ -275,9 +275,8 @@ Potwierdzenie wykonania commita przez ArgoCD.
 
 ![alt text](./images/github-check-files.png)
 
-Sprawdzenie pliku wygenerowanego przez ArgoCD - aplikacja będzie nanosić zmianę wykorzystywanej wersji naszej aplikacji - teraz mamy wersję 0.4.0 ale w przyszłości w tym pliku będzie informacja o wersji 0.5.0 itd.
+Sprawdzenie pliku wygenerowanego przez ArgoCD - aplikacja sama nanosi zmiany w pliku w którym jest zawarta informacja o obecnie wykorzystywanej wersji obrazu kontenera - jak widać podczas testowania rozwiązania miałem wcześniej ustawienie tagów jako `semver` i tagi były tworzone na podstawie numeru zadania w Jenkins. Obecnie zmieniłem podejście tak aby ArgoCD zawsze korzystał z najnowszej wersji obrazu oraz zmieniłem konwencję nazewnictwa.
 
-![alt text](./images/k3s-argocd-logs.png)
 
 Po chwili ArgoCD wykrywa nowy commit na repozytorium, pobiera zmiany i dostosowuje klaster K3S do uruchomienia aplikacji w najnowszej wersji.
 

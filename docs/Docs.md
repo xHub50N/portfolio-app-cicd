@@ -17,6 +17,9 @@ W tym artykule zawarta jest kompleksowa dokumentacja wdrożenia projektu. Chcę 
 #### Proces CD
 - [Konfiguracja i wdrożenie K3S oraz ArgoCD](./CD/k3s.md)
 
+#### Publikacja środowiska
+- [Cloudflare i GitHub Webhook](./CD/k3s.md)
+
 ---
 ### Schemat Środowiska
 
