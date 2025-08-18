@@ -3,11 +3,21 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "xhub50n/portfolio-app"
-        DOCKER_TAG = "0.${BUILD_NUMBER}.0"
+        DOCKER_TAG = ""
         DOCKER_REGISTRY = 'registry.hub.docker.com' 
     }
 
     stages {
+        stage('Prepare Tag') {
+            steps {
+                script {
+                    def commitHash = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    def buildDate  = sh(script: "date +%Y%m%d%H%M%S", returnStdout: true).trim()
+                    env.DOCKER_TAG = "${buildDate}-${commitHash}"
+                    echo "Using Docker tag: ${env.DOCKER_TAG}"
+                }
+            }
+        }
         stage('Check Commit Author') {
             steps {
                 script {

@@ -3,4 +3,4 @@ resources:
 
 images:
   - name: xhub50n/portfolio-app
-    newTag: 0.3.0
+    newTag: latest
