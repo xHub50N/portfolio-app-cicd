@@ -46,7 +46,7 @@ Natomiast w pliku http/user-data w sekcji ssh_authorized_keys wklejamy zawartoś
 
 ### Wygenerowanie certyfikatu
 
-W moim przypadku wygenerowałem certyfikat na domenę vault.xhub50n.lat za pomocą rządzania generowania certyfikatu CSR. Generowanie certyfiaktu zostawiam do dyspozcyji użytkownika. Ja postawiłem na ZeroSSL ale Letsencrypt również się nada :)
+W moim przypadku wygenerowałem certyfikat na domenę vault.xhub50n.lat za pomocą żądzania generowania certyfikatu CSR. Generowanie certyfiaktu zostawiam do dyspozcyji użytkownika. Ja postawiłem na ZeroSSL ale Letsencrypt również się nada :)
 
 ![alt text](./images/Packer/zerossl-cert.png)
 
