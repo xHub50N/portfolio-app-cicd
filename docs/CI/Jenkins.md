@@ -148,6 +148,7 @@ Po zainstalowaniu wtyczek Jenkins uruchomi się ponownie.
 
 Następnie musimy dodać pewne sekrety do konfiguracji Jenkinsa
 
+
 Wcześniej tworzyliśmy klucz ssh do githuba - teraz ponownie nam się przyda, jednakże wykorzystamy do tego klucz prywatny aby móc logować się do repozytorium. Przechodzimy do sekcji `Manage Jenkins > Credentials > System` i dodajemy `SSH Username with private key` i możemy wkleić nasz klucz prywatny.
 
 ![alt text](./images/jenkins-add-vault-token.png)
