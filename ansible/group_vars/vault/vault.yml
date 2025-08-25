@@ -3,6 +3,6 @@ vault_url: "https://vault.xhub50n.lat"
 vault_ssh_key_raw: >-
    {{ lookup('community.hashi_vault.vault_kv2_get',
             'ssh_proxmox', field='private_key',
-            engine_mount_point='secret',
+            engine_mount_point='kv',
             url=vault_url)
    }}
