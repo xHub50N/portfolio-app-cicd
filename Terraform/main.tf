@@ -10,7 +10,7 @@ provider "vault" {
 }
 
 data "vault_kv_secret_v2" "proxmox_creds" {
-  mount = "secret"
+  mount = "kv"
   name  = "proxmox_terraform_key"
 }
 
