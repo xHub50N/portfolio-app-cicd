@@ -110,10 +110,12 @@ pipeline {
 
                     # Tworzymy builder powiązany z tym kontekstem
                     docker buildx create \
-                      --name multiarch \
-                      --driver docker-container \
-                      --use \
-                      dind-context || docker buildx use multiarch
+                    --name multiarch \
+                    --driver docker-container \
+                    --use \
+                    dind-context \
+                    --config /certs/client
+
 
                     # Inicjalizujemy buildera
                     docker buildx inspect --bootstrap
