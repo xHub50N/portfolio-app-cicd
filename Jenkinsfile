@@ -102,10 +102,32 @@ pipeline {
                 ]) {
                     dir("portfolio-app") {
                         sh '''
-                            echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
-                            docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-                            docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
-                        '''
+                    echo "${DOCKER_PASS}" | docker login -u "${DOCKER_USER}" --password-stdin
+                    
+                    # Tworzymy kontekst dla docker:dind
+                    docker context create dind-context \
+                      --docker "host=tcp://docker:2376" || true
+
+                    # Tworzymy builder powiązany z tym kontekstem
+                    docker buildx create \
+                    --name multiarch \
+                    --driver docker-container \
+                    --use \
+                    dind-context \
+                    --config /certs/client
+
+                    # Inicjalizujemy buildera
+                    docker buildx inspect --bootstrap
+
+                    # QEMU dla budowania obrazów ARM
+                    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+                    
+                    # Multi-arch build i push
+                    docker buildx build \
+                      --platform linux/amd64,linux/arm64 \
+                      -t ${DOCKER_IMAGE}:${DOCKER_TAG} \
+                      --push .
+                '''
                     }
                 }
             }
