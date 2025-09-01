@@ -9,3 +9,6 @@ Po wszelkie informacje o wykorzystywanych technologiach oraz jak wdrożyć przyk
 ## [Dokumentacja](./docs/Docs.md)
 
 Można tam znaleźć szczegóły jak zainstalować i skonfigurować potrzebne nam narzędzia do wdrażania aplikacji na serwer produkcyjny wedle metodologii DevOps. 
+
+**Link do repozytorium szablonu wykorzystanej aplikacji znajduje się tutaj:**
+[arifszn/Gitprofile](https://github.com/arifszn/gitprofile)
