@@ -81,7 +81,9 @@ const GitProfile = ({ config }: { config: Config }) => {
         });
         const repoData = repoResponse.data;
 
-        return repoData.items;
+        const sortedData = repoData.items.sort((a: { id: number }, b: { id: number }) => b.id - a.id);
+
+        return sortedData;
       }
     },
     [
@@ -223,16 +225,16 @@ const GitProfile = ({ config }: { config: Config }) => {
                       experiences={sanitizedConfig.experiences}
                     />
                   )}
-                  {sanitizedConfig.certifications.length !== 0 && (
-                    <CertificationCard
-                      loading={loading}
-                      certifications={sanitizedConfig.certifications}
-                    />
-                  )}
                   {sanitizedConfig.educations.length !== 0 && (
                     <EducationCard
                       loading={loading}
                       educations={sanitizedConfig.educations}
+                    />
+                  )}
+                  {sanitizedConfig.certifications.length !== 0 && (
+                    <CertificationCard
+                      loading={loading}
+                      certifications={sanitizedConfig.certifications}
                     />
                   )}
                 </div>

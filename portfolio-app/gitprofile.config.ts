@@ -90,13 +90,14 @@ const CONFIG = {
     'Azure',
     'Git',
     'Proxmox',
+    'VMware',
     'Linux',
     'Public Key Infrastructure'
   ],
   experiences: [
     {
       company: 'TK-MED',
-      position: 'Junior IT Administrator',
+      position: 'Junior SysAdmin',
       from: 'January 2025',
       to: 'Present',
     },
@@ -109,10 +110,28 @@ const CONFIG = {
   ],
   certifications: [
     {
-      name: 'Lorem ipsum',
-      body: 'Lorem ipsum dolor sit amet',
-      year: 'March 2022',
-      link: 'https://example.com',
+      name: 'IT Administrator - choose your technological specialisation',
+      body: 'ING Hubs Poland',
+      year: 'June 2025',
+      link: 'https://credsverse.com/credentials/69128112-71b9-4e39-99d0-d85689cabb58',
+    },
+    {
+      name: 'CKA Certification Course - Certified Kubernetes Administrator',
+      body: 'Kodekloud',
+      year: 'April 2025',
+      link: 'https://learn.kodekloud.com/certificate/98b951ba-14c6-4761-813f-b1336f5134e6',
+    },
+    {
+      name: 'Terraform Associate - Hands-On Labs',
+      body: 'Udemy',
+      year: 'December 2024',
+      link: 'https://www.udemy.com/certificate/UC-f56fe648-1bd6-4765-a297-c45bd5b206a3',
+    },
+    {
+      name: 'Docker & Kubernetes: The Practical Guide',
+      body: 'Udemy',
+      year: 'July 2024',
+      link: 'https://www.udemy.com/certificate/UC-47250bb0-27e3-4e85-8f85-eb545c0b408c',
     },
   ],
   educations: [
@@ -124,31 +143,16 @@ const CONFIG = {
     },
   ],
   publications: [
-    // {
-    //   title: 'Publication Title',
-    //   conferenceName: '',
-    //   journalName: 'Journal Name',
-    //   authors: 'John Doe, Jane Smith',
-    //   link: 'https://example.com',
-    //   description:
-    //     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    // },
-    // {
-    //   title: 'Publication Title',
-    //   conferenceName: 'Conference Name',
-    //   journalName: '',
-    //   authors: 'John Doe, Jane Smith',
-    //   link: 'https://example.com',
-    //   description:
-    //     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    // },
+    {
+      title: 'Analysis the performance of Naive Bayes and K-Nearest Neighbor Classifiers',
+      conferenceName: '',
+      journalName: 'CEUR Workshop Proceedings',
+      authors: 'Hubert Bojda, Dawid Gala',
+      link: 'https://ceur-ws.org/Vol-3885/paper37.pdf',
+      description:
+        'Publication about AI-powered weather classification: API data is preprocessed, simplified, and split into training/testing sets before being analyzed by a KNN classifier.',
+    },
   ],
-  // Display articles from your medium or dev account. (Optional)
-  blog: {
-    source: 'dev', // medium | dev
-    username: 'arifszn', // to hide blog section, keep it empty
-    limit: 2, // How many articles to display. Max is 10.
-  },
   googleAnalytics: {
     id: '', // GA3 tracking id/GA4 tag id UA-XXXXXXXXX-X | G-XXXXXXXXXX
   },
@@ -208,13 +212,6 @@ const CONFIG = {
       'procyon',
     ],
   },
-
-  // Optional Footer. Supports plain text or HTML.
-  footer: `Made with <a 
-      class="text-primary" href="https://github.com/arifszn/gitprofile"
-      target="_blank"
-      rel="noreferrer"
-    >GitProfile</a> and ❤️`,
 
   enablePWA: true,
 };
