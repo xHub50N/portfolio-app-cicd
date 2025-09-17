@@ -398,4 +398,9 @@ interface Config {
   enablePWA?: boolean;
 }
 
+declare module '*.pdf' {
+  const src: string;
+  export default src;
+}
+
 declare const CONFIG: Config;

@@ -1,5 +1,4 @@
 // gitprofile.config.ts
-
 const CONFIG = {
   github: {
     username: 'xHub50N', // Your GitHub org/user name. (This is the only required config)
@@ -76,7 +75,7 @@ const CONFIG = {
   },
   resume: {
     fileUrl:
-      'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', // Empty fileUrl will hide the `Download Resume` button.
+      "./public/Hubert-Bojda-resume.pdf", // Empty fileUrl will hide the `Download Resume` button.
   },
   skills: [
     'Docker',
@@ -159,7 +158,7 @@ const CONFIG = {
   // Track visitor interaction and behavior. https://www.hotjar.com
   hotjar: { id: '', snippetVersion: 6 },
   themeConfig: {
-    defaultTheme: 'lofi',
+    defaultTheme: 'dark',
 
     // Hides the switch in the navbar
     // Useful if you want to support a single color mode
