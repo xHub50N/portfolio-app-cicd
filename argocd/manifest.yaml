@@ -5,7 +5,7 @@ metadata:
   run: xhub50n
  name: xhub50n-portfolio-depl
 spec:
-  replicas: 1
+  replicas: 2
   revisionHistoryLimit: 1
   selector:
     matchLabels:
