@@ -24,7 +24,7 @@ const CONFIG = {
       },
       manual: {
         // Properties for manually specifying projects
-        projects: ['xHub50N/portfolio-app-cicd','Dawo9889/cupid-app','xHub50N/DockerHomeLab','xHub50N/DockerKubernetesAzure','Dawo9889/AkademikMVC','xHub50N/Kubernetes-cluster-with-Vagrant'], // List of repository names to display. example: ['arifszn/my-project1', 'arifszn/my-project2']
+        projects: ['xHub50N/portfolio-app-cicd','Dawo9889/cupid-app','xHub50N/DockerHomeLab','xHub50N/DockerKubernetesAzure','Dawo9889/engineering-thesis','xHub50N/Kubernetes-cluster-with-Vagrant'], // List of repository names to display. example: ['arifszn/my-project1', 'arifszn/my-project2']
       },
     },
     external: {
