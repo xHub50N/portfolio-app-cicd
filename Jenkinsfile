@@ -3,9 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "xhub50n/portfolio-app"
-        DOCKER_REGISTRY = 'registry.hub.docker.com' 
-        N8N_WEBHOOK = "https://n8n.xhub50n.lat/webhook/jenkins-complete"
-        WEBHOOK_SECRET = credentials('JENKINS_TO_N8N_SECRET')
+        DOCKER_REGISTRY = 'registry.hub.docker.com'
     }
 
     stages {
@@ -119,61 +117,15 @@ pipeline {
             }
         }
     }
-
     post {
-         success {
-            script {
-            def logText = currentBuild.rawBuild.getLog(50).join("\n") 
-            def payload = [
-                jobName: env.JOB_NAME,
-                buildNumber: env.BUILD_NUMBER,
-                status: "SUCCESS",
-                logs: logText,
-                buildUrl: env.BUILD_URL
-            ]
-                sh """
-                curl -s -X POST ${N8N_WEBHOOK} \
-                    -H 'Content-Type: application/json' \
-                    -H 'X-Webhook-Secret: ${WEBHOOK_SECRET}' \
-                    -d '${groovy.json.JsonOutput.toJson(payload)}'
-                """
-            }
+        success {
+            echo 'Pipeline zakończony sukcesem!'
         }
         aborted {
-            script {
-            def logText = currentBuild.rawBuild.getLog(50).join("\n") 
-            def payload = [
-                jobName: env.JOB_NAME,
-                buildNumber: env.BUILD_NUMBER,
-                status: "ABORTED",
-                logs: logText,
-                buildUrl: env.BUILD_URL
-            ]
-                sh """
-                    curl -s -X POST ${N8N_WEBHOOK} \
-                    -H 'Content-Type: application/json' \
-                    -H 'X-Webhook-Secret: ${WEBHOOK_SECRET}' \
-                    -d '${groovy.json.JsonOutput.toJson(payload)}'
-                """
-            }
+            echo 'Pipeline został pominięty (commit od ArgoCD).'
         }
         failure {
-            script {
-            def logText = currentBuild.rawBuild.getLog(50).join("\n") 
-            def payload = [
-                jobName: env.JOB_NAME,
-                buildNumber: env.BUILD_NUMBER,
-                status: "FAILURE",
-                logs: logText,
-                buildUrl: env.BUILD_URL
-            ]
-            sh """
-                curl -s -X POST ${N8N_WEBHOOK} \
-                -H 'Content-Type: application/json' \
-                -H 'X-Webhook-Secret: ${WEBHOOK_SECRET}' \
-                -d '${groovy.json.JsonOutput.toJson(payload)}'
-            """
-            }
+            echo 'Pipeline zakończony błędem!'
         }
     }
 }
