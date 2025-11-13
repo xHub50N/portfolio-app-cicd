@@ -93,7 +93,7 @@ pipeline {
             steps {
                 withVault([
                     vaultSecrets: [[
-                        path: 'kv/data/docker',
+                        path: 'kv/docker',
                         secretValues: [
                             [envVar: 'DOCKER_USER', vaultKey: 'username'],
                             [envVar: 'DOCKER_PASS', vaultKey: 'password']
