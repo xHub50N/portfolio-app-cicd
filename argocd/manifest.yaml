@@ -5,7 +5,7 @@ metadata:
   run: xhub50n
  name: xhub50n-portfolio-depl
 spec:
-  replicas: 2
+  replicas: 1
   revisionHistoryLimit: 1
   selector:
     matchLabels:
@@ -32,7 +32,7 @@ spec:
   type: LoadBalancer
   ports:
   - port: 8080
-    targetPort: 5173
+    targetPort: 3000
     protocol: TCP
   selector:
     run: xhub50n-portfolio
