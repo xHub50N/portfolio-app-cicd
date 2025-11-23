@@ -16,15 +16,15 @@ const CONFIG = {
       mode: 'manual', // Mode can be: 'automatic' or 'manual'
       automatic: {
         sortBy: 'updated', // Sort projects by 'stars' or 'updated'
-        limit: 6, // How many projects to display.
+        limit: 8, // How many projects to display.
         exclude: {
           forks: false, // Forked projects will not be displayed if set to true.
-          projects: ['xHub50N/xHub50N','xHub50N/weatherPrediction'], // These projects will not be displayed. example: ['arifszn/my-project1', 'arifszn/my-project2']
+          projects: ['xHub50N/xHub50N'], // These projects will not be displayed. example: ['arifszn/my-project1', 'arifszn/my-project2']
         },
       },
       manual: {
         // Properties for manually specifying projects
-        projects: ['xHub50N/portfolio-app-cicd','Dawo9889/cupid-app','xHub50N/docker-homelab','xHub50N/docker-kubernetes-azure','Dawo9889/engineering-thesis','xHub50N/kubernetes-cluster-with-vagrant'], // List of repository names to display. example: ['arifszn/my-project1', 'arifszn/my-project2']
+        projects: ['xHub50N/portfolio-app-cicd','Dawo9889/cupid-app','xHub50N/docker-homelab','xHub50N/docker-kubernetes-azure','Dawo9889/engineering-thesis','xHub50N/kubernetes-cluster-with-vagrant','xHub50N/k3s-tutorial','xHub50N/weather-prediction-classifier'], // List of repository names to display. example: ['arifszn/my-project1', 'arifszn/my-project2']
       },
     },
     external: {
@@ -75,7 +75,7 @@ const CONFIG = {
   },
   resume: {
     fileUrl:
-      "./public/Hubert-Bojda-resume.pdf", // Empty fileUrl will hide the `Download Resume` button.
+      "./Hubert-Bojda-resume.pdf", // Empty fileUrl will hide the `Download Resume` button.
   },
   skills: [
     'Docker',
