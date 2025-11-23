@@ -5,7 +5,7 @@ provider "proxmox" {
   pm_tls_insecure     = var.pm_tls_insecure
 }
 provider "vault" {
-  address = "https://vault.xhub50n.lat"
+  address = "https://vault.hbojda.ovh"
   token   = var.vault_token
 }
 

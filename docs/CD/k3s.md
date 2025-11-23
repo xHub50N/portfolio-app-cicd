@@ -1,30 +1,30 @@
-# Konfiguracja klastra Kubernetes oraz ArgoCD
+# Configuring a Kubernetes cluster and ArgoCD
 
-W tej części przedstawię swój pomysł na wdrożenie klastra Kubernetes wraz z nardzędziem ArgoCD.
+In this section, I will present my idea for implementing a Kubernetes cluster with the ArgoCD tool.
 
-W jaki sposób ArgoCD i K3S będzie działać w moim środowisku?
+How will ArgoCD and K3S work in my environment?
 
-- Użytkownik wypycha zmiany w kodzie na branch-a `main`
-- Jenkins przetwarza kod i tworzy artefakt w postaci nowej wersji obrazu kontenera na Docker Hub
-- ArgoCD ma zainstalowaną dodatkową usługę Image Updater, która sprawdza najnowszą wersję zadanego obrazu na Docker Hub
-- Image Updater dokonuje zmian w repozytorium i wypycha je na GitHub-a
-- ArgoCD wykrywa zmianę dokonaną przez siebie i aktualizuje deployment wykorzystując najnowszą wersję obrazu kontenera
+- The user pushes code changes to the `main` branch
+- Jenkins processes the code and creates an artifact in the form of a new version of the container image on Docker Hub
+- ArgoCD has an additional Image Updater service installed, which checks for the latest version of the specified image on Docker Hub
+- Image Updater makes changes to the repository and pushes them to GitHub
+- ArgoCD detects the change it has made and updates the deployment using the latest version of the container image
 
-Przy okazji tworzenia środowiska za pomocą Ansible - wykonaliśmy skrypt instalujący lekką dystrybucję Kubernetesa czyli K3S.
+When creating the environment using Ansible, we created a script that installs a lightweight Kubernetes distribution, K3S.
 
-### Przygotowanie klastra do pracy
+### Preparing the cluster for operation
 
 ![alt text](./images/k3s-check-installation.png)
 
-Poleceniem: 
+With the command: 
 ```
 kubectl get nodes
 ```
-Możemy sprawdzić z jakich urządzeń składa się nasz klaster - jak widać w naszym klastrze jest tylko jedno urządzenie - zgodnie z instalacją. 
+we can check what devices our cluster consists of as you can see, there is only one device in our cluster, as per the installation. 
 
 ![alt text](./images/k3s-check-files.png)
 
-Dodatkowo możemy sprawdzić czy wszystkie pliki zostały skopiowane. Tutaj utworzyłem zbiorcze manifesty do utworzenia usług oraz uruchomienia aplikacji ArgoCD. W repozytroium na githubie znajduje się folder `/kubernetes` a w nim zawarte są osobne pliki w zależności od typu obiektu.
+Additionally, we can check if all files have been copied. Here, I created collective manifests to create services and run the ArgoCD application. The GitHub repository contains a `/kubernetes` folder with separate files depending on the object type.
 
 ```
 apiVersion: metallb.io/v1beta1
@@ -42,128 +42,119 @@ metadata:
  name: example
  namespace: metallb-system
 ```
-Powyżej znajduje się zawartość pliku `load-balancer.yaml` a w nim definicja manifestu utworzenia puli adresów IP z których load balancer Metallb może korzystać - zostaną tutaj stworzone wirtualne adresy IP z zadanej puli. 
+Above is the content of the `load-balancer.yaml` file, which contains the definition of the manifest for creating a pool of IP addresses that the Metallb load balancer can use virtual IP addresses from the specified pool will be created here.
 
 
 ![alt text](./images/k3s-edit-daemon.png)
 
-Następnie wykonujemy polecenie 
+Next, we execute the command 
 
 ```
 systemctl edit --full k3s
 ```
-Zostaniemy przeniesieni do edytora `Vim` w celu edycji naszej usługi - na samym końcu przy parametrze `server` dopisujemy `--disable servicelb` i zapisujemy plik, usługa sama się zrestartuje
+We will be taken to the `Vim` editor to edit our service - at the very end, next to the `server` parameter, we add `--disable servicelb` and save the file, the service will restart itself.
 
 ![alt text](./images/k3s-check-service-type.png)
 
-Następnie poleceniem
+Then, with the command
 
 ```
 kubectl get svc -n argocd
 ```
-możemy sprawdzić czy usługa argocd-server dostała adres z puli load-balancera - jak widać został jej przydzielony adres 192.168.1.230 - możemy sprawdzić czy wszystko działa
+we can check if the argocd-server service has received an address from the load balancer pool - as you can see, it has been assigned the address 192.168.1.230 - we can check if everything is working
 
 ![alt text](./images/argocd-panel.png)
 
-Przechodzimy na adres `https://192.168.1.230` i naszym oczom ukazuje się panel logowania do ArgoCD.
+Go to `https://192.168.1.230` and you will see the ArgoCD login panel.
 
-### Konfiguracja ArgoCD
+### ArgoCD configuration
 
 ![alt text](./images/argocd-get-password.png)
 
-Aby móc zalogować się do panelu ArgoCD musimy poznać hasło - możemy je poznać wykonując polecenie 
-
-```
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d && echo
-```
-A login to `admin`
-
-![alt text](./images/argocd-empty-dashboard.png)
-
-Po zalogowaniu się ukaże nam się panel w którym będą nasze aplikacje utrzymywane w klastrze K3S
+After logging in, we will see a panel where our applications will be maintained in the K3S cluster.
 
 ![alt text](./images/argocd-edit-configmap.png)
 
-Kolejnym krokiem będzie utworzenie nowego użytkownika ArgoCD - będzie on nam poterzebny do implementacji dodatkowej usługi image updater - więcej szczegółów będzie poniżej. 
+The next step will be to create a new ArgoCD user we will need it to implement an additional image updater service—more details will be provided below. 
 
-Wykonujemy polecenie 
+We execute the command 
 
 ```
 kubectl -n argocd edit configmap argocd-cm
 ```
 
-i dodajemy konfigurację 
+and add the configuration 
 
 ```
 data:
   accounts.image-updater: apiKey, login
 ```
-Zapisujemy plik i config-mapa zostanie ponownie wczytana do ArgoCD
+Save the file and the config map will be reloaded into ArgoCD.
 
-#### Wygenerowanie tokenu użytkownika
+#### Generating a user token
 
 ![alt text](./images/k3s-get-name-pod.png)
 
-Kolejnym krokiem będzie wygenerowanie tokenu użytkownika image-updater w celu uwierzytelnienia kontenera image-updater z ArgoCD
+The next step is to generate an image-updater user token to authenticate the image-updater container with ArgoCD.
 
-Poleceniem 
+With the command 
 ```
 kubectl get pods -n argocd
 ```
-Wyświetlimy wszystkie pody w przestrzeni nazw `argocd` - interesuje nas argocd-server-XXXX - kopiujemy tą nazwę a następnie wykonujemy polecenie 
+we will display all pods in the `argocd` namespace – we are interested in argocd-server-XXXX – we copy this name and then execute the command 
 
 ```
 kubectl exec -it -n argocd argocd-server-795cf9c4b4-bshmx -c argocd-server -- sh
 ```
-Dzięki wykonaniu powyższego polecenia będziemy mogli wejść do środka kontenera argocd-server
+By executing the above command, we will be able to enter the argocd-server container
 
 ![alt text](./images/argocd-create-token.png)
 
-Wewnątrz kontenera musimy się zalogować jako administrator, zrobimy to poleceniem:
+Inside the container, we need to log in as an administrator. We can do this with the command:
 
 ```
-argocd login argocd-server.argocd.svc.cluster.local --username admin --password {hasło-argocd} --insecure
+argocd login argocd-server.argocd.svc.cluster.local --username admin --password {argocd-password} --insecure
 ```
-Po zalogowaniu możemy wygenerować token:
+After logging in, we can generate a token:
 
 ```
 argocd account generate-token --account image-updater
 ```
-Należy go skopiować i ewentualnie zapisać w bezpiecznym miejscu! Możemy wyjść z kontenera.
+Copy it and save it in a safe place! We can exit the container.
 
 ![alt text](./images/k3s-create-iu-token.png)
 
-Poza kontenerem wykonujemy polecenie
+Outside the container, we execute the command
 ```
 kubectl -n argocd create secret generic argocd-image-updater-secret \
   --from-literal=argocd.token={TOKEN}
 ```
-Które utworzy sekret a w nim będzie przechowany token do konta image-updater.
+This will create a secret that will store the token for the image-updater account.
 
 ![alt text](./images/argocd-check-accounts.png)
 
-W panelu webowym możemy sprawdzić czy konto się utworzylo - jak widać udało się.
+In the web panel, we can check if the account has been created - as you can see, it worked.
 
 ![alt text](./images/k3s-add-vault-token.png)
 
-Kolejnym istotnym krokiem będzie utworzenie sekretu przechowującego token to HashiCorp Vault - będzie on nam potrzebny do pobierania z Vault-a klucza SSH do githuba oraz danych logowania do Docker-a
+The next important step will be to create a secret storing the token in HashiCorp Vault we will need it to retrieve the SSH key for GitHub and the login details for Docker from Vault.
 
 ```
 kubectl create secret generic vault-token \
   --namespace argocd \
   --from-literal=token=HCP_TOKEN
 ```
-### Wdrożenie aplikacji
+### Application deployment
 
 ![alt text](./images/k3s-deploy-apps.png)
 
-Teraz możemy uruchomić nasze środowisko - w pierwszej kolejności wykonujemy wdrożenie manifestu dotyczącego usługi pobierania sekretów z Vault-a
+Now we can launch our environment. First, we deploy the manifest for the service that retrieves secrets from Vault.
 
 ```
 kubectl apply -f ESO-configuration.yaml
 ```
 
-A następnie możemy wdrożyć konfigurację ArgoCD
+Then we can deploy the ArgoCD configuration.
 
 ```
 kubectl apply -f ArgoCD-configuration.yaml
@@ -171,21 +162,17 @@ kubectl apply -f ArgoCD-configuration.yaml
 
 ![alt text](./images/k3s-check-ESO.png)
 
-Możemy sprawdzić czy obiekty przechowujące dane z Vault-a działają i czy są gotowe do pracy.
+We can check if the objects storing data from Vault are working and ready to go.
 
 ![alt text](./images/argocd-add-ssh.png)
 
-Przechodzimy do panelu ArgoCD do zakładki Settings > Repositories, a następnie wybieramy opcję `Connect repo` - pokaże nam się powyższy panel dodawania repozytorium z githuba, logujemy się poprzez SSH, wybieramy nazwę, podajemy do którego projektu będzie repo przypisane - w pliku `ArgoCD-configuration.yaml` jest zdefiniowanie stworzenie projektu o nazwie `portfolio` i podczas dodawania repo możemy z rozwijanej listy wybrać ten projekt, na samym końcu dodaję klucz SSH do logowania się.
+Go to the ArgoCD panel, then to the Settings > Repositories tab, and select the `Connect repo` option. The above panel for adding a repository from GitHub will appear. Log in via SSH, select a name, and specify which project the repo will be assigned to. In the `ArgoCD-configuration.yaml` file defines the creation of a project called `portfolio`, and when adding the repo, we can select this project from the drop-down list. At the very end, I add the SSH key for logging in.
 
 ![alt text](./images/argocd-check-gh.png)
 
-Możemy sprawdzić czy ArgoCD nawiązał połączenie z repo - jak widać udało się.
+We can check if ArgoCD has established a connection with the repo - as you can see, it worked.
 
 ![alt text](./images/argocd-add-docker.png)
-
-**UWAGA** - teraz należy dokonać konfiguracji aplikacji i manifestu automatycznego wdrażania naszej aplikacji do klastra K3S. W naszym repozytorium tworzymy folder o nazwie np `argocd` (nazwa folderu jest obojętna, ważne aby obiekt Application w ArgoCD miał nakierowany folder w repozytorium o tej samej nazwie)
-
-Wycinek pliku `kubernetes/argocd/application.yaml`
 ```
   source:
     repoURL: git@github.com:xHub50N/portfolio-app-cicd.git
@@ -193,7 +180,7 @@ Wycinek pliku `kubernetes/argocd/application.yaml`
     path: argocd
 ```
 
-W folderze `argocd` tworzymy plik `kustomization.yaml` a w nim będzie taka zawartość: 
+In the `argocd` folder, create a file called `kustomization.yaml` with the following content: 
 ```
 resources:
   - manifest.yaml
@@ -203,9 +190,9 @@ images:
     newTag: 0.3.0
 ```
 
-**Uwaga** - należy sprawdzić w docker-hub która wersja kontenera jest jako najstarsza - u mnie jest to wersja 0.3.0 - w pliku `kustomization.yaml` musimy wpisać odpowiednią wersję - jeśli wpiszemy wersję np 0.2.0 to kontener nie zostanie uruchomiony ponieważ ArgoCD nie znajdzie takiej wersji kontenera w Docker Hub
+** Note** - check in docker-hub which container version is the oldest - for me it is version 0.3.0 - in the `kustomization.yaml` file, we must enter the appropriate version - if we enter a version such as 0.2.0, the container will not start because ArgoCD will not find that container version in Docker Hub
 
-A poniżej znajduje się gotowy manifest wdrożenia aplikacji:
+Below is a ready-made application deployment manifest:
 
 ```
 apiVersion: apps/v1
@@ -247,41 +234,41 @@ spec:
   selector:
     run: xhub50n-portfolio
 ```
-### Testowanie działania
+### Testing the functionality
 
 ![alt text](./images/argocd-ready-sync.png)
 
-Kolejnym krokiem będzie sprawdzenie działania aplikacji - na początku pewnie pojawi się błąd synchronizacji - ale nie ma co się obawiać, jeśli wszystko do tego momentu jest skonfigurowane wedle instrukcji to możemy kliknąć guzik `Sync` i spróbować ręcznie zsynchronizować. Po chwili ukazuje nam się `Sync OK` i nasza aplikacja została uruchomiona.
+The next step is to check the application's functionality. At first, you will probably encounter a synchronization error, but there is no need to worry. If everything has been configured according to the instructions up to this point, you can click the `Sync` button and try to synchronize manually. After a moment, `Sync OK` will appear, and your application will be launched.
 
 ![alt text](./images/app-test.png)
 
-Tak prezentuje się gotowy produkt
+This is what the finished product looks like
 
 ![alt text](./images/jenkins-run-pipeline.png)
 
-Następnie możemy już zasymulować działanie potoku CI/CD - przechodzimy do Jenkins-a i uruchamiamy pipeline.
+Next, we can simulate the operation of the CI/CD pipeline – we go to Jenkins and run the pipeline.
 
 ![alt text](./images/k3s-image-updater-logs.png)
 
-W międzyczasie poleceniem 
+In the meantime, with the command 
 ```
 kubectl -n argocd logs -f deploy/argocd-image-updater
 ```
-Możemy podejrzeć logi i reagować na błędy. Na powyższym screenie widać że image-updater wykrył nową wersję naszej aplikacji - teraz po wykonaniu pipeline-a została utworzona wersja 0.4.0. Image-updater dokonuje zmian w repozytorium i tworzy commita wraz z plikiem.
+we can view the logs and respond to errors. The screenshot above shows that image-updater has detected a new version of our application – now, after running the pipeline, version 0.4.0 has been created. Image-updater makes changes to the repository and creates a commit along with the file.
 
 ![alt text](./images/github-check-commit.png)
 
-Potwierdzenie wykonania commita przez ArgoCD.
+Confirmation of commit execution by ArgoCD.
 
 ![alt text](./images/github-check-files.png)
 
-Sprawdzenie pliku wygenerowanego przez ArgoCD - aplikacja sama nanosi zmiany w pliku w którym jest zawarta informacja o obecnie wykorzystywanej wersji obrazu kontenera - jak widać podczas testowania rozwiązania miałem wcześniej ustawienie tagów jako `semver` i tagi były tworzone na podstawie numeru zadania w Jenkins. Obecnie zmieniłem podejście tak aby ArgoCD zawsze korzystał z najnowszej wersji obrazu oraz zmieniłem konwencję nazewnictwa.
+Checking the file generated by ArgoCD – the application itself makes changes to the file containing information about the currently used container image version – as you can see, when testing the solution, I had previously set the tags as `semver` and the tags were created based on the Jenkins task number. I have now changed my approach so that ArgoCD always uses the latest version of the image, and I have changed the naming convention.
 
 
-Po chwili ArgoCD wykrywa nowy commit na repozytorium, pobiera zmiany i dostosowuje klaster K3S do uruchomienia aplikacji w najnowszej wersji.
+After a while, ArgoCD detects a new commit to the repository, downloads the changes, and adjusts the K3S cluster to run the latest version of the application.
 
 ![alt text](./images/argocd-update-jenkins.png)
 
-A tak prezentuje się widok w panelu webowym.
+And this is what it looks like in the web panel.
 
-### [Powrót do strony głównej](../Docs.md)
+### [Back to main page](../Docs.md)

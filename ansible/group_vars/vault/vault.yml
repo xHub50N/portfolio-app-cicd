@@ -1,4 +1,4 @@
-vault_url: "https://vault.xhub50n.lat"
+vault_url: "https://vault.hbojda.ovh"
 
 vault_ssh_key_raw: >-
    {{ lookup('community.hashi_vault.vault_kv2_get',

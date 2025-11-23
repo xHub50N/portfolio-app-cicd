@@ -1,14 +1,14 @@
-# Portfolio CI/CD - Projekt wdrożenia na własnym sprzęcie środowiska CI/CD do tworzenia, budowania i uruchamiania aplikacji typu "CV" i nie tylko
+# Portfolio CI/CD - Project to implement a CI/CD environment on our own hardware for creating, building, and launching applications.
 
-Projekt ma na celu stworzenie środowiska pod automatyzację wdrażania kodu na serwer produkcyjny. Wykorzystywana aplikacja jest napisana w technologii React i jest to aplikacja typu "CV" lub "wizytówka".
+The project aims to create an environment for automating code deployment to the production server. The application used is written in React technology and is a “CV” or “business card” type application.
 
 ---
 
-Po wszelkie informacje o wykorzystywanych technologiach oraz jak wdrożyć przykładowe środowisko odsyłam do dokumentacji: 
+For all information about the technologies used and how to implement a sample environment, please refer to the documentation: 
 
-## [Dokumentacja](./docs/Docs.md)
+## [Documentation](./docs/Docs.md)
 
-Można tam znaleźć szczegóły jak zainstalować i skonfigurować potrzebne nam narzędzia do wdrażania aplikacji na serwer produkcyjny wedle metodologii DevOps. 
+There you will find details on how to install and configure the tools we need to deploy the application to a production server according to the DevOps methodology. 
 
-**Link do repozytorium szablonu wykorzystanej aplikacji znajduje się tutaj:**
+**The link to the repository of the template used for the application can be found here:**
 [arifszn/Gitprofile](https://github.com/arifszn/gitprofile)

@@ -5,7 +5,7 @@ metadata:
 spec:
   provider:
     vault:
-      server: "https://vault.xhub50n.lat"
+      server: "https://vault.hbojda.ovh"
       path: "kv"
       version: "v2"
       auth:

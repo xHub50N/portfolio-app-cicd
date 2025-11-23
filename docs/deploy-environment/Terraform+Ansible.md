@@ -1,14 +1,14 @@
-# Przygotowanie wirtualnych maszyn CI/CD za pomocą Terraform i Ansible
+# Preparing CI/CD virtual machines using Terraform and Ansible
 
-W tym module zajmę się przygotowaniem wirtualnych maszyn VM3 oraz VM4 za pomocą narzędzia terraform. Wyżej wymienione maszyny będą odpowiedzialne odpowiednio za proces CI i CD w odesparowanych środowiskach tak aby zachować modułowość rozwiązania.
+In this module, I will discuss preparing VM3 and VM4 virtual machines using the Terraform tool. The above-mentioned machines will be responsible for the CI and CD processes in isolated environments, respectively, in order to maintain the modularity of the solution.
 
-W pierwszej kolejności upewniamy się czy mamy odpowiednie pliki pobrane pobrane z repozytorium w katalogu terraform
+First, we make sure that we have the appropriate files downloaded from the repository in the terraform directory.
 
 ![alt text](./images/Terraform+Ansible/prepare-terraform-files.png)
 
-Taka powinna być zawartość folderu.
+This should be the content of the folder.
 
-Poniżej przedstawiam przykładową konfiguracje terraform-a do utworzenia wirtualnych maszyn oraz dokonania konfiguracji za pomocą cloud-init na proxmox.
+Below is an example terraform configuration for creating virtual machines and configuring them using cloud-init on proxmox.
 
 #### main.tf
 
@@ -161,45 +161,45 @@ variable "vault_token" {
 }
 ```
 
-Konfigurację dokonujemy według własnych potrzeb, na co warto zwrócić uwagę:
+We configure it according to our own needs, which is worth noting:
 
-- Lokalizacja klucza publicznego dla wirtualnych maszyn, musimy się upewnić że nasz klucz istnieje w podanej lokalizacji 
+- Location of the public key for virtual machines, we must make sure that our key exists in the specified location
 
-- Pojemność dysku - aby terraform mógł poprawnie sklonować szablon utworzony przez packer-a
+- Disk capacity - so that Terraform can correctly clone the template created by Packer
 
-- W sekcji podłączenia się do vault-a musimy podać adres naszej usługi vault-a
+- In the section on connecting to the vault, we must provide the address of our vault service
 
-- W pliku terraform.tfvars musimy podać adres naszego proxmox-a
+- In the terraform.tfvars file, we must provide the address of our proxmox
 
-### Uruchomienie terraform-a
+### Launching terraform
 
 ![alt text](./images/Terraform+Ansible/terraform-init.png)
 
-Pierwszym krokiem jest zainicjowanie całego środowiska i pobranie zależności przez terraform-a, musimy wykonać polecenie 
-`terraform init`, następnie terraform sprawdzi plik main.tf oraz providers.tf w którym są zapisane informacje o zależnościach koniecznych do pobrania.
+The first step is to initialize the entire environment and download dependencies using Terraform. We need to run the command 
+terraform init, then Terraform will check the main.tf and providers.tf files, which contain information about the dependencies that need to be downloaded.
 
 ![alt text](./images/Terraform+Ansible/terraform-plan.png)
 
-W kolejnym kroku możemy dokonać sprawdzenia utworzenia naszej konfiguracji, polecenie `terraform plan` wykona symulacje utworzenia środowiska, możemy podejrzeć część właściwości które zostaną zaaplikowane a które mogą zostać usunięte lub zmienione w razie zmiany konfiguracji.
+In the next step, we can check the creation of our configuration. The `terraform plan` command will simulate the creation of the environment. We can view some of the properties that will be applied and which can be deleted or changed if the configuration changes.
 
-Ważną kwestią jest podanie tokenu do uwierzytelnienia z Hashicorp Vault
+It is important to provide an authentication token from Hashicorp Vault
 
 ![alt text](./images/Terraform+Ansible/terraform-apply.png)
 
-Analogicznie mamy juz polecenie `terraform apply`, wyświetlone informację będą tożsame z wynikiem polecenia `terraform plan` jednakże na końcu mamy możliwość zaakceptowania wprowadzenia zmian przez terraform-a. Po wpisaniu `yes` - dokonuje się magia.
+Similarly, we already have the `terraform apply` command. The information displayed will be identical to the result of the `terraform plan` command, but at the end, we have the option to accept the changes made by Terraform. After entering `yes`, the magic happens.
 
 ![alt text](./images/Terraform+Ansible/all-mashines.png)
 
-Tak prezentuje się w pełni utworzone środowisko
+This is what the fully created environment looks like
 
-## Konfiguracja za pomocą Ansible
+## Configuration using Ansible
 
-### Przygotowanie plików
-Aby zainstalować potrzebne oprogramowanie na serwerze VM3 i VM4 wykorzystam do tego ponownie narzędzie ansible.
+### Preparing files
+To install the necessary software on the VM3 and VM4 servers, I will use the ansible tool again.
 
-Wszystkie pliki konfiguracji ansible są zapisane w folderze `ansible/roles`
+All ansible configuration files are stored in the `ansible/roles` folder.
 
-Natomiast tak prezentuje się główny plik playbook.yml
+This is what the main playbook.yml file looks like.
 
 ```
 ---
@@ -270,10 +270,10 @@ Natomiast tak prezentuje się główny plik playbook.yml
 
 ```
 
-Oraz kluczowy dla nas plik w nawiazywaniu połączenia pomiędzy ansiblem i vault-em który pobiera interesujące nas dane:
+And the file that is crucial for us in establishing a connection between Ansible and Vault, which retrieves the data we are interested in:
 
 ```
-vault_url: "https://vault.xhub50n.lat"
+vault_url: "https://vault.hbojda.ovh"
 
 vault_ssh_key_raw: >-
    {{ lookup('community.hashi_vault.vault_kv2_get',
@@ -283,18 +283,18 @@ vault_ssh_key_raw: >-
    }}
 ```
 
-### Uruchomienie playbook-a
+### Running the playbook
 
 ![alt text](./images/Terraform+Ansible/export-token-ansible.png)
 
-Przed wykonaniem skryptu muszę zdefiniować zmienną VAULT_TOKEN która zawiera token do HCP Vault oraz dodatkowo aktywuje środowisko ansible-vault.
+Before executing the script, I need to define the VAULT_TOKEN variable, which contains the token for HCP Vault and additionally activates the ansible-vault environment.
 
 ![alt text](./images/Terraform+Ansible/login-to-nodes.png)
 
-Dla pewności sprawdzam czy działa komunikacja po ssh z nowymi maszynami
+To be sure, I check that SSH communication with the new machines is working.
 
 ![alt text](./images/Terraform+Ansible/ansible-success.png)
 
-A tak prezentuje się wykonany już skrypt
+And this is what the completed script looks like.
 
-### [Powrót do strony głównej](../Docs.md)
+### [Back to main page](../Docs.md)

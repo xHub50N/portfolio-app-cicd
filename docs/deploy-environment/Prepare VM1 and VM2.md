@@ -1,28 +1,28 @@
-# Przygotowanie i wstępne skonfigurowanie wirtualnych maszyn VM1 i VM2
+# Preparation and initial configuration of virtual machines VM1 and VM2
 
- Maszyna VM1 która będzie posiadać nazwę srv-provisioning będzie odpowiedzialna za tworznie infrastruktury wirtualnych maszyn VM3 oraz VM4 za pomocą terraforma, dodatkowo maszyna VM1 będzie mieć na pokładzie zainstalowany ansible do dokonywania konfiguracji i instalacji potrzebnego oprogramowania w zautoamtyzowany sposób.
+ The VM1 machine, which will be named srv-provisioning, will be responsible for creating the infrastructure of the VM3 and VM4 virtual machines using Terraform. In addition, the VM1 machine will have Ansible installed on board to automatically configure and install the necessary software.
 
- Natomiast maszyna VM2 nazwa robocza to srv-services będzie posiadać niezbędne usługi zainstalowanych w ramach kontenerów docker-owych do poprawnego działania całego środowiska m.in:
- - Adguard Home który posłuzy jako lokalny serwer DNS
- - Nginx Proxy Manager jako usługa odwrotnego proxy
- - Hashicorp Vault jako skarbiec sekretów potrzebnych do tworzenia i zarządzania środowiskiem
+ The VM2 machine, with the working name srv-services, will have the necessary services installed within Docker containers for the proper functioning of the entire environment, including:
+- Adguard Home, which will serve as a local DNS server
+- Nginx Proxy Manager as a reverse proxy service
+ - Hashicorp Vault as a vault for secrets needed to create and manage the environment
 
- ![alt text](./images/Prepare%20VM1%20and%20VM2/clone-vm.png)
+![alt text](./images/Prepare%20VM1%20and%20VM2/clone-vm.png)
 
- W pierwszej kolejności musimy sklonować wirtaulną maszynę na podstawie naszego szablonu, który został stworzony za pomocą packer-a.
+ First, we need to clone the virtual machine based on our template, which was created using packer.
 
  ![alt text](./images/Prepare%20VM1%20and%20VM2/cloud-init.png)
- Po sklonowaniu VM możemy przejść do sekcji cloud-init, musimy zaznaczyć aby adresacja została przydzielona przez DHCP (wcześniej na routerze została dodana rezerwacja adresu poprzez MAC) i klikamy regenerate-image, możemy uruchomić wirtualną maszynę
+ After cloning the VM, we can move on to the cloud-init section. We need to select that the address should be assigned by DHCP (earlier, an address reservation was added to the router via MAC) and click regenerate-image. We can now start the virtual machine
 
 ![alt text](./images/Prepare%20VM1%20and%20VM2/ssh-login.png)
 
-Udało się zalogować na VM1, teraz możemy powtórzyć ten krok dla VM2.
+We have successfully logged into VM1, now we can repeat this step for VM2.
 
-### Przygotowanie Terraform oraz Ansible 
+### Preparing Terraform and Ansible
 
-W repozytorium w folderze /scripts znajdują się 2 skrypty do instalacji Terraforma i Ansible
+The repository in the /scripts folder contains two scripts for installing Terraform and Ansible.
 
-#### Instalacja Ansible
+#### Installing Ansible
 ```
 #!/bin/bash
 
@@ -39,7 +39,7 @@ ansible-galaxy collection install community.hashi_vault
 source ~/.venvs/ansible-vault/bin/activate
 ```
 
-#### Instalacja Terraform
+#### Installing Terraform
 
 ```
 #!/bin/bash
@@ -55,23 +55,23 @@ sudo apt-get install terraform
 
 ![alt text](./images/Prepare%20VM1%20and%20VM2/terraform+ansible.png)
 
-Udało się zainstalować oprogramowanie.
+The software has been successfully installed.
 
-Następnym krokiem będzie przygotowanie playbooków ansible oraz plików terraform do przygotowania infrastruktury. 
+The next step will be to prepare Ansible playbooks and Terraform files to set up the infrastructure. 
 
-Z repozytorium kopiujemy zawartość folderów ansible oraz terraform na maszynę wirtualną VM1
+Copy the contents of the Ansible and Terraform folders from the repository to the VM1 virtual machine
 
 ![alt text](./images/Prepare%20VM1%20and%20VM2/terraform+ansible-files.png)
 
-Tak to powinno wyglądać 
+This is how it should look 
 
 ![alt text](./images/Prepare%20VM1%20and%20VM2/copy-key.png)
 
-Dodatkowo przyda nam się skopiowanie klucza prywatnego i publicznego, który został utworzony podczas konfiguracji packera
+Additionally, it will be useful to copy the private and public keys that were created during the packer configuration.
 
-#### Konfiguracja Ansible
+#### Ansible configuration
 
-Następnym krokiem będzie przygotowanie konfiguracji ansible, w pierwszej kolejności przygotujemy plik inventory.ini w którym będą zapisane informacje o ip wirtualnych maszyn oraz, którym użytkownikiem będziemy się logować.
+The next step will be to prepare the ansible configuration. First, we will prepare the inventory.ini file, which will contain information about the IP addresses of the virtual machines and the user we will use to log in.
 ```
 [cicd]
 192.168.1.21 ansible_user={your-user}
@@ -87,9 +87,9 @@ Następnym krokiem będzie przygotowanie konfiguracji ansible, w pierwszej kolej
 192.168.1.23 ansible_user={your-user} ansible_ssh_private_key_file=~/.ssh/id_rsa
 ```
 
-Tak prezentuje się plik, w pierwszej kolejności interesuje nas ostatni host, musimy podać ścieżkę do pliku klucza prywatnego, to dzięki niemu będziemy się uwierzytelniać podczas wykonywania playbooka ansible 
+This is what the file looks like. First, we are interested in the last host. We need to specify the path to the private key file, which will be used for authentication when executing the Ansible playbook. 
 
-Hosty które są powyżej nie będą musiały logować się za pomocą klucza prywatnego, w póżniejszym etapie zostanie uruchomiony Hashicorp Vault, dzięki niemu będziemy mogli się uwierzytelniać bez przechowywania kluczy prywatnych na różnych urządzeniach. Wszystko będzie zcentralizowane.
+The hosts listed above will not need to log in using a private key. At a later stage, Hashicorp Vault will be launched, allowing us to authenticate without storing private keys on different devices. Everything will be centralized.
 
 ```
 - name: Docker installation
@@ -105,7 +105,7 @@ Hosty które są powyżej nie będą musiały logować się za pomocą klucza pr
    - services
 ```
 
-Tak prezentuje się plik playbook-services.yml
+This is what the playbook-services.yml file looks like
 
 ```
 - name: Install required packages
@@ -147,7 +147,7 @@ Tak prezentuje się plik playbook-services.yml
     append: yes
 ```
 
-To jest plik main.yml który jest odpowiedzialny za role docker
+This is the main.yml file that is responsible for docker roles.
 
 ```
 - name: Create directories for Docker containers
@@ -188,9 +188,9 @@ To jest plik main.yml który jest odpowiedzialny za role docker
     dest: /docker/vault/config/vault.hcl
 ```
 
-Natomiast tak prezentuje się plik który jest odpowiedzialny za role services
+This is what the file responsible for role services looks like
 
-Jeśli wszystko skonfigurujemy według naszych potrzeb możemy uruchomić playbook poleceniem 
+Once everything is configured according to our needs, we can run the playbook with the command
 
 ```
 ansible-playbook -i inventory.ini playbook-services.yml
@@ -198,11 +198,11 @@ ansible-playbook -i inventory.ini playbook-services.yml
 
 ![alt text](./images/Prepare%20VM1%20and%20VM2/ready-ansible.png)
 
-Tak prezentuje się wynik udanego wykonania playbooka!
+This is what the result of a successful playbook execution looks like!
 
-Na samym końcu możemy stworzyć własną usługę która będzie zapisywać do pliku `/etc/resolv.conf ` adres DNS serwera VM2
+At the very end, we can create our own service that will write the DNS address of the VM2 server to the `/etc/resolv.conf` file.
 
-Zawartość skryptu:
+Script content:
 
 ```
 #!/bin/bash
@@ -211,7 +211,6 @@ SERVICE_NAME="set-static-dns.service"
 DNS_IP="192.168.1.23"
 SERVICE_PATH="/etc/systemd/system/$SERVICE_NAME"
 
-echo "Tworzę usługę systemd w: $SERVICE_PATH"
 cat <<EOF | sudo tee $SERVICE_PATH > /dev/null
 [Unit]
 Description=Set static DNS in resolv.conf
@@ -226,22 +225,16 @@ ExecStart=/bin/bash -c 'echo "nameserver $DNS_IP" > /etc/resolv.conf'
 WantedBy=multi-user.target
 EOF
 
-echo "Przeładowuję systemd..."
 sudo systemctl daemon-reload
 
-echo "Włączam usługę, aby uruchamiała się przy starcie..."
 sudo systemctl enable $SERVICE_NAME
 
-echo "Uruchamiam usługę..."
 sudo systemctl start $SERVICE_NAME
 
-echo -e "\nZawartość /etc/resolv.conf:"
 cat /etc/resolv.conf
-
-echo -e "\nUsługa została utworzona i uruchomiona."
 
 ```
 
-Teraz możemy przejść do konfiguracji usług na VM2
+Now we can move on to configuring services on VM2.
 
-### [Powrót do strony głównej](../Docs.md)
+### [Back to main page](../Docs.md)

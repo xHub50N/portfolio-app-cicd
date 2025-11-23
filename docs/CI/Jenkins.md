@@ -1,48 +1,48 @@
-# Przygotowanie środowiska CI za pomocą narzędzia Jenkins oraz SonarQube
+# Preparing the CI environment using Jenkins and SonarQube
 
-W tej sekcji przedstawię przykład konfiguracji aplikacji Jenkins na potrzeby procesu CI (Continuous Integration).
+In this section, I will present an example of configuring the Jenkins application for the CI (Continuous Integration) process.
 
-Szybki przegląd działania Jenkinsa w moim środowisku
-- Jenkins jest podłączony do repozytorium na GitHubie
-- Jenkins ma ustawiony interwał w którym co zadaną ilość czasu będzie sprawdzać zmiany w repozytorium na gałęzi main
-- W repozytrium będzie umieszczony plik Jenkinsfile w którym jest zadana informacja w jaki sposób Jenkins ma zbudować artefakty oraz wypchnąć zmiany do Docker Hub
-- Jenkins będzie korzystać z Hashicorp Vault w celu pobrania danych logowania do Docker Hub
-- Dodatkowym elementem będzie podłączenie Sonarqube do Jenkinsa tak aby podczas budowania obrazu kontenera została sprawdzona zawartość plików pod względem bezpieczeństwa
+A quick overview of how Jenkins works in my environment
+- Jenkins is connected to a repository on GitHub
+- Jenkins has an interval set in which it will check for changes in the repository on the main branch at specified intervals
+- The repository will contain a Jenkinsfile file with information on how Jenkins should build artifacts and push changes to Docker Hub
+- Jenkins will use Hashicorp Vault to retrieve login credentials for Docker Hub
+- An additional element will be connecting Sonarqube to Jenkins so that the contents of the files are checked for security during the container image build
 
-## Przygotowanie środowiska
+## Preparing the environment
 
 ![./images/check-containers.png](./images/check-containers.png)
 
-Po poprzednim wykonaniu instalacji środowiska za pomocą ansible warto sprawdzić czy nasze aplikacje zostały uruchomione i czy nie bylo jakichś innych błędów.
+After installing the environment using Ansible, it is worth checking whether our applications have been launched and whether there were any other errors.
 
-Jak widać wszystkie aplikacje z których chce korzystać zostały uruchomione jako kontenery docker-owe.
+As you can see, all the applications I want to use have been launched as Docker containers.
 
-### Przygotowanie klucza ssh do GitHub-a
+### Preparing an SSH key for GitHub
 
-W pierwszej kolejności musimy utworzyć klucz ssh na naszej wirtulnej maszynie, możemy wykorzystać do tego polecenie 
+First, we need to create an SSH key on our virtual machine. We can use the following command for this:
 
 ```
 ssh-keygen -t rsa -b 4096  -f /tmp/github_rsa
 ```
-Tym poleceniem wygenerujemy parę kluczy asymetrycznych RSA o wielkości 4096 bitów oraz zapiszemy go w lokalizacji /tmp/github_rsa. Dodatkowo w tej lokalizacji zostanie utworzony klucz publiczny o nazwie /tmo/github_rsa.pub, w tym momencie interesuje nas klucz publiczny. Musimy podejrzeć i skopiować jego zawartość
+This command will generate a pair of 4096-bit RSA asymmetric keys and save them in the /tmp/github_rsa location. Additionally, a public key named /tmo/github_rsa.pub will be created in this location. At this point, we are interested in the public key. We need to view and copy its contents
 
 ![alt text](./images/add-ssh-to-gh.png)
 
-Następnie przechodzimy do repozytorium z naszym kodem do zakładki Settings > Deploy keys. Dodajemy nowy klucz i wklejamy zawartość klucza poublicznego, ważne aby zaznaczyć uprawnienie write access. Będzie to potrzebne w procesie CD.
+Next, we go to the repository with our code to the Settings > Deploy keys tab. We add a new key and paste the contents of the public key. It is important to select the write access permission. This will be needed in the CD process.
 
-Dodatkowo możemy wykorzystać ten klucz prywatny do logowania się na repozytrium i możemy go dodać do HashiCorp Vault.
+Additionally, we can use this private key to log into the repository and add it to HashiCorp Vault.
 
 ![alt text](./images/add-key-to-vault.png)
 
-Analogicznie jak konfiguracji klucza SSH dla Ansible tutaj też wklejamy zawartość wewnątrz kontenera Vault i wykonujemy polecenie
+Similar to configuring the SSH key for Ansible, here we also paste the contents inside the Vault container and execute the command
 
 ```
 vault kv put kv/github_key private_key=@github_rsa
 ```
 
-### Uruchomienie Jenkins-a
+### Deploy Jenkins
 
-Ansible przekopiował na serwer CI pliki docker-compose oraz Dockerfile które utworzą środowisko Jenkins-a. W pierwszej kolejności jest budowany obraz z Dockerfile ponieważ chce jeszcze dostosować Jenkina pod własny użytek.
+Ansible copied the docker-compose and Dockerfile files to the CI server, which will create the Jenkins environment. First, an image is built from Dockerfile because I want to customize Jenkins for my own use.
 
 `Dockerfile`
 ```
@@ -65,7 +65,7 @@ USER jenkins
 RUN jenkins-plugin-cli --plugins "blueocean docker-workflow json-path-api"
 ```
 
-Jak można zauważyć kopiuje certyfikat mojej domeny vault.xhub50n.lat ponieważ domyślnie Jenkins nie ufa temu certyfikatowi i należy go "ręcznie" dodać do zaufanych. Na szczęście możemy to zrobić z poziomu Dockerfile i przez to możemy zautomatyzować nasz proces.
+As you can see, it copies the certificate for my domain vault.hbojda.ovh because Jenkins does not trust this certificate by default and it must be added to the trusted list “manually.” Fortunately, we can do this from the Dockerfile, which allows us to automate the process.
 
 `Docker compose`
 ```
@@ -113,102 +113,100 @@ volumes:
   jenkins-data:
 ```
 
-Tutaj przedstawiam swój plik docker compose który zawiera kompletne informacje o utworzeniu stack-u kontenerów. Do budowy obrazów dockerowych podczas wykonywania pipeline-a muszę wykorzystać dodatkowo kontener docker.
+Here is my docker compose file, which contains complete information about creating a container stack. To build docker images while executing the pipeline, I also need to use a docker container.
 
-### Przygotowanie Jenkins-a
+### Preparing Jenkins
 
 ![alt text](./images/unlock-jenkins.png)
 
-Przechodzimy w przeglądarce na adres Jenkinsa czyli http://ip-vm-srv-ci:8080 i naszym oczom ukazuje się informacja o odblokowaniu jenkinsa, hasło które jest potrzebne do odblokowania znajduje się w logach kontenera lub we wskazanej lokalizacji, ja skorzystam z tej drugiej opcji.
+We go to the Jenkins address in the browser, i.e., http://ip-vm-srv-ci:8080, and we see information about unlocking Jenkins. The password needed to unlock it is located in the container logs or in the specified location. I will use the latter option.
 
 ![alt text](./images/exec-admin-token.png)
 
-Loguję się na serwer CI i wykonuję polecenie:
+I log into the CI server and execute the command:
 
 ```
 docker exec -it jenkins-blueocean sh
 ```
 
-Tą komendą "wchodze" do kontenera jenkins-blueocean i wykonuję w nim polecenie `sh` czyli uruchomienie powłoki dzięki czemu mogę wykonywać polecenia wewnątrz kontenera. Tak jak widać wykonuję polecenie `cat /var/jenkins_home/secrets/initialAdminPassword` czyli wyświetlam nim hasło do odblokownia jenkinsa.
+With this command, I “enter” the jenkins-blueocean container and execute the `sh` command, which launches the shell, allowing me to execute commands inside the container. As you can see, I execute the command `cat /var/jenkins_home/secrets/initialAdminPassword`, which displays the password to unlock Jenkins.
 
 ![alt text](./images/jenkins-basic-plugin-install.png)
 
-Po podaniu hasła ukazuje nam się informacja o instalacji wtyczek, ja pozostanę przy instalacji podstawowych wtyczek a resztę doinstaluję później.
+After entering the password, information about the installation of plugins is displayed. I will stick to installing the basic plugins and install the rest later.
 
 ![alt text](./images/add-another-plugins.png)
 
-Następnie musimy zmienić hasło oraz nadać nazwę dla użytkownika administratora. Po przejściu do panelu głównego mogę dokonać konfiguracji systemu. Właśnie teraz przyszła pora na instalację wtyczek. Instalujemy je w pozycji `Manage Jenkins > Plugins`. Instaluję wtyczki:
+Next, we need to change the password and assign a name for the administrator user. After going to the main panel, I can configure the system. Now it's time to install the plugins. We install them in `Manage Jenkins > Plugins`. I install the following plugins:
 - Docker
 - HashiCorp Vault
 - SonarQube Scanner
 
-Po zainstalowaniu wtyczek Jenkins uruchomi się ponownie.
+After installing the plugins, Jenkins will restart.
 
 ![alt text](./images/jenkins-add-github-key.png)
 
-Następnie musimy dodać pewne sekrety do konfiguracji Jenkinsa
+Next, we need to add some secrets to the Jenkins configuration
 
-
-Wcześniej tworzyliśmy klucz ssh do githuba - teraz ponownie nam się przyda, jednakże wykorzystamy do tego klucz prywatny aby móc logować się do repozytorium. Przechodzimy do sekcji `Manage Jenkins > Credentials > System` i dodajemy `SSH Username with private key` i możemy wkleić nasz klucz prywatny.
+Earlier, we created an SSH key for GitHub—now it will come in handy again, but this time we will use the private key to log into the repository. Go to `Manage Jenkins > Credentials > System` and add `SSH Username with private key`, then paste your private key.
 
 ![alt text](./images/jenkins-add-vault-token.png)
 
-Kolejnym sekretem będzie token do uwierzytelniania się z Hashicorp Vault, po instalacji wtyczki pojawia nam się w sekretach pozycja `Vault Token Credential` - możemy go w tym miejscu podać i zapisać.
+Another secret will be the token for authentication with Hashicorp Vault. After installing the plugin, the `Vault Token Credential` item appears in the secrets – we can enter it here and save it.
 
-
-### Uruchomienie Sonarqube
+### Launching Sonarqube
 
 ![alt text](./images/login-sonarqube.png)
 
-Kolejną aplikacją którą chcę skonfigurować do Sonarqube - będzie ona nam analizować i sprawdzać kod pod względem podatności i błędów konfiguracji. Przechodzę pod adres http://ip-vm-srv-ci:9000 i pokaże nam się ekran logowania do systemu. Domyślny login i hasło to admin:admin. Po zalogowaniu się należy zmienić dane do logowania się.
+Another application I want to configure for Sonarqube will analyze and check the code for vulnerabilities and configuration errors. Go to http://ip-vm-srv-ci:9000 and you will see the system login screen. The default login and password are admin:admin. After logging in, you should change your login details.
 
 ![alt text](./images/sonarqube-select.png)
 
-Po zalogowaniu się i zmianie hasła ukaże nam się ekran stworzenia nowego projektu - ja wybieram `Manually`
+After logging in and changing the password, we will see the screen for creating a new project – I choose `Manually`
 
 ![alt text](./images/sonarqube-name-project.png)
 
-Musimy podać nazwę projektu oraz wskazać z której gałęzi repozytrium sonarqube będzie korzystać aby analizować kod.
+We need to enter the name of the project and indicate which branch of the repository Sonarqube will use to analyze the code.
 
 ![alt text](./images/sonarqube-select-env.png)
 
-Na sam koniec musimy wskazać gdzie znajduje się nasze narzędzie CI. My mamy Jenkina i Sonarqube na jednym środowisku dlatego wybieram opcję `Locally` 
+Finally, we need to indicate where our CI tool is located. We have Jenkins and Sonarqube on one environment, so I choose the `Locally` option. 
 
 ![alt text](./images/sonarqube-token.png)
 
-Ukaże nam się token do uwierzytelnienia się - należy go skopiować i gdzieś tymczasowo zapisać.
+An authentication token will be displayed – copy it and save it somewhere temporarily.
 
-To będzie na ten moment wszystko z konfiguracji Sonarqube.
+That's all for the Sonarqube configuration for now.
 
-### Dokończenie konfiguracji Jenkins-a
+### Completing the Jenkins configuration
 
 ![alt text](./images/jenkins-add-sonarqube-token.png)
 
-Wracamy do konfiguracji Jenkins-a. Musimy ponownie dodać sekret do konfiguracji globalnej. W tym momencie wybieram typ `Secret text` - wskazuję nazwę sonarqube-token-jenkins. Warto zwrócić uwagę na tą nazwę ponieważ nasz pipeline będzie się odnosić do tej nazwy dlatego trzeba to uwzględnić.
+Let's go back to the Jenkins configuration. We need to add the secret to the global configuration again. At this point, I select the `Secret text` type and enter the name sonarqube-token-jenkins. It is worth paying attention to this name because our pipeline will refer to it, so it must be taken into account.
 
 ![alt text](./images/jenkins-add-sonarqube-server.png)
 
-W konfiguracji systemu musimy dodać informacje o serwerze Sonarqube - musimy podać jenkinsowi informacje o:
- - Adresie IP
- - Tokenowi do uwierzytelnienia się 
+In the system configuration, we need to add information about the Sonarqube server - we need to provide Jenkins with information about:
+- IP address
+- Authentication token 
 
 ![alt text](./images/jenkins-add-vault-server.png)
 
-Dodatkowo w tej sekcji podajemy informacje o serwerze Vault-a. Tutaj również podajemy adres IP lub w moim przypadku URL-a.
+Additionally, in this section, we provide information about the Vault server. Here, we also provide the IP address or, in my case, the URL.
 
 ![alt text](./images/jenkins-add-sonarqube-scanner.png)
 
-W zakładce `Manage Jenkins > Tools` musimy zainstalowac aplikację SonarQube Scanner - wybieramy wersję oraz podajemy nazwę - tą nazwę też należy uwzględnić w konfiguracji pipeline-a.
+In the `Manage Jenkins > Tools` tab, we need to install the SonarQube Scanner application - select the version and enter the name - this name should also be included in the pipeline configuration.
 
-### Uruchomienie testowego pipeline-a
+### Running the test pipeline
 
 ![alt text](./images/jenkins-create-pipeline.png)
 
-Teraz możemy przejść do najlepszej części konfiguracji Jenkinsa - czyli stworzenia własnego pipeline-a! Póki co skonfiguruję pipeline-a który będzie uruchamiany ręcznie ponieważ chce przetestować konfigurację czy wszystko będzie poprawnie działać. Na sam koniec wdrażania projektu zmienię na automatyczne uruchamianie pipeline-a.
+Now we can move on to the best part of Jenkins configuration - creating our own pipeline! For now, I will configure a pipeline that will be run manually because I want to test the configuration to make sure everything works correctly. At the very end of the project implementation, I will change it to automatic pipeline execution.
 
 ![alt text](./images/jenkins-configure-pipeline.png)
 
-W konfiguracji podaję adres mojego repozytorium oraz sposób uwierzytelniania się za pomocą wcześniej wprowadzonego klucza SSH. Dodatkowo zaznaczam która gałąź będzie wykorzystywana do budowania artefaktów.
+In the configuration, I specify the address of my repository and the authentication method using a previously entered SSH key. Additionally, I select which branch will be used to build artifacts.
 
 ```
 pipeline {
@@ -346,7 +344,7 @@ pipeline {
 
 ```
 
-Tak prezentuje się cały plik `Jenkinsfile`. Ten plik dokonuje kompleksowego zbudowania i opublikowania aplikacji napisanej w React.
+This is what the entire Jenkinsfile looks like. This file performs a comprehensive build and publish of an application written in React.
 
 ```
 stage('Prepare Tag') {
@@ -360,7 +358,7 @@ stage('Prepare Tag') {
             }
         }
 ```
-Istotną kwestią jest dodawnia tag-ów do obrazów kontenerów, mianowicie tagi będą tworzone na podstawie daty oraz hash-a commita na githubie
+An important issue is adding tags to container images, namely tags will be created based on the date and commit hash on GitHub.
 
 ```
  stage('Check Commit Author') {
@@ -376,7 +374,7 @@ Istotną kwestią jest dodawnia tag-ów do obrazów kontenerów, mianowicie tagi
     }
 }
 ```
-W tym etapie sprawdzam autora danego commita - jeśli autorem jest argocd-image-updater to Jenkins domyślnie anuluje tworzenie obrazu kontenera, dlaczego ten blok kodu tutaj umieściłem to wyjaśni się w dalszej części dokumentacji.
+At this stage, I check the author of the commit—if the author is argocd-image-updater, Jenkins cancels the creation of the container image by default. Why I included this block of code here will be explained later in the documentation.
 
 ```
 stage('Analyze code with SonarQube') {
@@ -400,8 +398,7 @@ stage('Analyze code with SonarQube') {
         }
 ```
 
-W tym etapie należy sprawdzić czy nazwy sekretów oraz nazwa aplikacji SonarQube Scanner odpowiada informacjom zawartch w Jenkinsfile.
-
+At this stage, you should check that the names of the secrets and the name of the SonarQube Scanner application match the information contained in the Jenkinsfile.
 
 ```
         stage('Building and pushing container image') {
@@ -428,28 +425,28 @@ W tym etapie należy sprawdzić czy nazwy sekretów oraz nazwa aplikacji SonarQu
         }
 ```
 
-Tak samo w stage-u budowania obrazu Docker-a w sekcji logowania do Docker Hub należy upewnić się że dane będą pobierane z odpowiedniej lokalizacji w HashiCorp Vault.
+Similarly, in the Docker image build stage, in the Docker Hub login section, make sure that the data will be retrieved from the correct location in HashiCorp Vault.
 
 ![alt text](./images/jenkins-ready-pipeline.png)
 
-Tak prezentuje się gotowy pipeline :) Możemy go uruchomić aby debugować błędy.
+This is what the finished pipeline looks like :) We can run it to debug errors.
 
 ![alt text](./images/jenkins-check-pipeline.png)
 
-Jak widać na powyższym screeni-e - za trzecim razem udało mi się wykonać poprawną konfigurację i dokonać odpowiednich zmian w Jenkinsfile. Jenkins teraz wykonuje:
-- Pobranie repozytorium
-- Instaluje zależności
-- Buduje aplikację
-- Informuje SonarQube aby zaczął sprawdzać aplikacje pod kątem podatności
-- Loguje się do Docker Hub
-- Buduje i wypycha kontener do Docker Hub
+As you can see in the screenshot above, on the third attempt, I managed to configure it correctly and make the appropriate changes to Jenkinsfile. Jenkins now performs the following:
+- Downloads the repository
+- Installs dependencies
+- Builds the application
+- Informs SonarQube to start checking the application for vulnerabilities
+- Logs into Docker Hub
+- Builds and pushes the container to Docker Hub
 
 ![alt text](./images/sonnarqube-check.png)
 
-Możemy przejść do SonarQube i jak widać nasza apliakcja pozytywnie przeszła test więc można ją przekazać na serwer CD.
+We can go to SonarQube and, as you can see, our application has passed the test, so it can be transferred to the CD server.
 
 ![alt text](./images/dockerhub-check.png)
 
-Dodatkowo na Docker Hub istnieje nowa wersja naszej aplikacji :)
+Additionally, there is a new version of our application on Docker Hub :)
 
-### [Powrót do strony głównej](../Docs.md)
+### [Back to home page](../Docs.md)
