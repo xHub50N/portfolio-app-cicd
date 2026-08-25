@@ -80,25 +80,32 @@ const CONFIG = {
   skills: [
     'Docker',
     'Kubernetes',
+    'Linux',
     'CICD',
+    'Azure',
+    'Azure DevOps',
     'Jenkins',
     'Terraform',
     'Ansible',
     'Python',
-    'Javascript',
-    'Azure',
+    'Bash',
     'Git',
     'Proxmox',
     'VMware',
-    'Linux',
     'Public Key Infrastructure'
   ],
   experiences: [
     {
-      company: 'TK-MED',
-      position: 'Junior SysAdmin',
-      from: 'January 2025',
+      company: 'Accenture',
+      position: 'DevSecOps Engineer',
+      from: 'March 2026',
       to: 'Present',
+    },
+    {
+      company: 'TK-MED',
+      position: 'System Administrator',
+      from: 'January 2025',
+      to: 'February 2026',
     },
     {
       company: 'Vattenfall',
@@ -108,6 +115,24 @@ const CONFIG = {
     },
   ],
   certifications: [
+    {
+      name: 'Sekurak Academy 2026 Sem. 1',
+      body: 'Securitum',
+      year: 'July 2026',
+      link: 'https://www.linkedin.com/in/hubert-bojda/overlay/Certifications/702235682/treasury/?profileId=ACoAAEgVJCMBXoBN_MzIhZnF6nZGc5ueePCdAGI',
+    },
+    {
+      name: 'HashiCorp Certified: Terraform Associate (004)',
+      body: 'HCP',
+      year: 'June 2026',
+      link: 'https://www.credly.com/badges/6cc2f727-3719-43e9-a9ee-8cee8cdb3fe7',
+    },
+    {
+      name: 'Microsoft Certified: Azure Fundamentals',
+      body: 'Microsoft',
+      year: 'March 2026',
+      link: 'https://learn.microsoft.com/en-us/users/hubertbojdahb305153-6553/credentials/16d44aff4e4cae8f?ref=https%3A%2F%2Fwww.linkedin.com%2F',
+    },
     {
       name: 'IT Administrator - choose your technological specialisation',
       body: 'ING Hubs Poland',
@@ -134,6 +159,12 @@ const CONFIG = {
     },
   ],
   educations: [
+    {
+      institution: 'University of Silesia',
+      degree: 'Master',
+      from: '2026',
+      to: '2027',
+    },
     {
       institution: 'Silesian University of Technology',
       degree: 'Bachelor',

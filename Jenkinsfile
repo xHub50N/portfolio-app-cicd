@@ -45,7 +45,7 @@ pipeline {
         stage('Install Dependencies') {
             agent {
                 docker {
-                    image 'node:18'
+                    image 'node:24'
                     args '--network host'
                 }
             }
@@ -59,7 +59,7 @@ pipeline {
         stage('Build') {
             agent {
                 docker {
-                    image 'node:18'
+                    image 'node:24'
                     args '--network host'
                 }
             }
