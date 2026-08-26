@@ -19,7 +19,7 @@ spec:
       - name: xhub50n-portfolio
         image: xhub50n/portfolio-app
         ports:
-          - containerPort: 5173
+          - containerPort: 80
 
 ---
 apiVersion: v1
@@ -32,7 +32,7 @@ spec:
   type: LoadBalancer
   ports:
   - port: 8080
-    targetPort: 5173
+    targetPort: 80
     protocol: TCP
   selector:
     run: xhub50n-portfolio
