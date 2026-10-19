@@ -80,7 +80,7 @@ pipeline {
                                 ${scannerHome}/bin/sonar-scanner \
                                 -Dsonar.projectKey=portfolio-cicd \
                                 -Dsonar.sources=. \
-                                -Dsonar.host.url=http://192.168.1.85:9000 \
+                                -Dsonar.host.url=http://192.168.1.211:9000 \
                                 -Dsonar.login=${SONAR_TOKEN}
                             """
                         }
